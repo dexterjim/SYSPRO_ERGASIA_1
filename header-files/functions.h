@@ -66,5 +66,59 @@ void printList(usersBitCoinsNode *list);
 void insertList(usersBitCoinsNode **list,int value,int offset);
 
 //////////////////
+typedef struct HashTable HashTable;
+typedef struct bucketNode bucketNode;
+typedef struct transactionNode transactionNode;
 
-int takeData_TransactionsFile(void);
+struct HashTable{
+	//exw to size apo ta arguments (to size tou hash table)
+	int numOfUsersPerBucket;
+	bucketNode **buckets;
+};
+
+struct bucketNode{
+	oneWallet **users;//deixnw sto wallet tou user wste na mhn exw kai edw to onoma  //char **users; NA TO TSEKARW MPOREI NA EINAI LA8OS , EPILPEWN NA DW AN YPARXEI PROBLHMA TON UPOLOGISMO TWN numOfUsersPerBucket
+	int last_entry;
+	transactionNode *transactionList;//edw 8elw enan pinaka apo tetoia !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! cid=17
+	bucketNode *next;
+};
+
+struct transactionNode{
+	usersBitCoinsNode *withUser;//me poion ekane thn sunalagh , eite tou edwse eite tou phre bitcoins
+	transactionNode *next;
+};
+
+typedef struct transaction transaction;//endiktikh domh ws na dw ti paizei me to arxeio transactionsFile
+typedef struct struct_date struct_date;
+typedef struct struct_time struct_time;
+struct transaction{
+	char *transactionID;
+	char *senderWalletID;
+	char *receiverWalletID;
+	int value;
+	struct_date *date;
+	struct_time *time;
+};
+struct struct_date{
+	int day;
+	int month;
+	int year;
+};
+struct struct_time{
+	int hour;
+	int minutes;
+};
+
+int takeData_TransactionsFile(bitCoinIdArray *bitCoins,struct_wallets *wallets,HashTable **senderHashTable,HashTable **receiverHashTable,struct_arguments *arguments);
+int executeTransaction(bitCoinIdArray *bitCoins,struct_wallets *wallets,HashTable *senderHashTable,HashTable *receiverHashTable,struct_arguments *arguments,transaction *tr);
+int checkIfSenderHasEnoughBalance(struct_wallets *wallets,transaction *tr);
+oneWallet *findUser(struct_wallets *wallets,char *str);
+int hash(char *str,int mod);
+transaction *breakTransaction(char *string,int begin,int end);
+
+
+
+
+
+
+
