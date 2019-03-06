@@ -52,7 +52,7 @@ struct oneWallet{
 };
 
 struct usersBitCoinsNode{
-	int usersPartOfBitCoin;
+	int usersPartOfBitCoin;//MALLON DEN XREIAZETAI
 	int offsetOfBitCoin;//to offset ston pinaka bitCoinIdArray
 	usersBitCoinsNode *next;
 };
@@ -68,6 +68,7 @@ void insertList(usersBitCoinsNode **list,int value,int offset);
 //////////////////
 typedef struct HashTable HashTable;
 typedef struct bucketNode bucketNode;
+typedef struct bucketElement bucketElement;
 typedef struct transactionNode transactionNode;
 
 struct HashTable{
@@ -77,20 +78,32 @@ struct HashTable{
 };
 
 struct bucketNode{
-	oneWallet **users;//deixnw sto wallet tou user wste na mhn exw kai edw to onoma  //char **users; NA TO TSEKARW MPOREI NA EINAI LA8OS , EPILPEWN NA DW AN YPARXEI PROBLHMA TON UPOLOGISMO TWN numOfUsersPerBucket
+	//oneWallet **users;//deixnw sto wallet tou user wste na mhn exw kai edw to onoma  //char **users; NA TO TSEKARW MPOREI NA EINAI LA8OS , EPILPEWN NA DW AN YPARXEI PROBLHMA TON UPOLOGISMO TWN numOfUsersPerBucket
 	int last_entry;
-	transactionNode *transactionList;//edw 8elw enan pinaka apo tetoia !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! cid=17
+	bucketElement *arrayOfUsers;//
+	//transactionNode *transactionList;//edw 8elw enan pinaka apo tetoia !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! cid=17
 	bucketNode *next;
 };
 
+struct bucketElement{
+	oneWallet *users;//deixnw sto wallet tou user wste na mhn exw kai edw to onoma  //char **users; NA TO TSEKARW MPOREI NA EINAI LA8OS , EPILPEWN NA DW AN YPARXEI PROBLHMA TON UPOLOGISMO TWN numOfUsersPerBucket
+	transactionNode *transactionList;//edw 8elw enan pinaka apo tetoia !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! cid=17
+};
+
 struct transactionNode{
-	usersBitCoinsNode *withUser;//me poion ekane thn sunalagh , eite tou edwse eite tou phre bitcoins
+	usersBitCoinsNode *withUser;//me poion ekane thn sunalagh , eite tou edwse eite tou phre bitcoins, ousiastika einai o deikths sto dentro
+	//MALLON PREPEI NA BALW EDW NA FILAW KAPWS KAI TO TRANSACTION , MPORW ME DEIKTH OPWS KAI BUCKETS
 	transactionNode *next;
 };
 
+typedef struct arrayOfTransactions arrayOfTransactions;
 typedef struct transaction transaction;//endiktikh domh ws na dw ti paizei me to arxeio transactionsFile
 typedef struct struct_date struct_date;
 typedef struct struct_time struct_time;
+struct arrayOfTransactions{
+	int size;
+	transaction *tr;
+};
 struct transaction{
 	char *transactionID;
 	char *senderWalletID;
@@ -109,14 +122,15 @@ struct struct_time{
 	int minutes;
 };
 
-int takeData_TransactionsFile(bitCoinIdArray *bitCoins,struct_wallets *wallets,HashTable **senderHashTable,HashTable **receiverHashTable,struct_arguments *arguments);
+int takeData_TransactionsFile(bitCoinIdArray *bitCoins,struct_wallets *wallets,HashTable **senderHashTable,HashTable **receiverHashTable,arrayOfTransactions **ArrayOfTransactions,struct_arguments *arguments);
 int executeTransaction(bitCoinIdArray *bitCoins,struct_wallets *wallets,HashTable *senderHashTable,HashTable *receiverHashTable,struct_arguments *arguments,transaction *tr);
 int checkIfSenderHasEnoughBalance(struct_wallets *wallets,transaction *tr);
 oneWallet *findUser(struct_wallets *wallets,char *str);
+onebitCoinId *findBitCoin(bitCoinIdArray *bitCoins,char *str);
 int hash(char *str,int mod);
 transaction *breakTransaction(char *string,int begin,int end);
-
-
+int checkForDuplicateTransactionID(arrayOfTransactions *aot,int point);
+int checkIfUserIsAlreadyInHashTable(HashTable *ht,int offset,char *str,bucketNode **temp,int *point_on_bucket);
 
 
 

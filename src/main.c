@@ -38,9 +38,17 @@ for(int i=0;i<bitCoins->size;i++){
 }
 ////
 	HashTable *senderHashTable,*receiverHashTable;
-	if(takeData_TransactionsFile(bitCoins,wallets,&senderHashTable,&receiverHashTable,arguments)==-1){
+	arrayOfTransactions *ArrayOfTransactions;
+	if(takeData_TransactionsFile(bitCoins,wallets,&senderHashTable,&receiverHashTable,&ArrayOfTransactions,arguments)==-1){
 		return 3;
 	}
+
+//////
+printf("TRANSACTION from file with size=%d\n",ArrayOfTransactions->size);
+for(int i=0;i<ArrayOfTransactions->size;i++){
+	printf("%s %s %s %d %d-%d-%d %d:%d\n",ArrayOfTransactions->tr[i].transactionID,ArrayOfTransactions->tr[i].senderWalletID,ArrayOfTransactions->tr[i].receiverWalletID,ArrayOfTransactions->tr[i].value,ArrayOfTransactions->tr[i].date->day,ArrayOfTransactions->tr[i].date->month,ArrayOfTransactions->tr[i].date->year,ArrayOfTransactions->tr[i].time->hour,ArrayOfTransactions->tr[i].time->minutes);
+}
+/////
 
 	//diabazw input tou xrhsth
 	char *command;
@@ -78,7 +86,7 @@ for(int i=0;i<bitCoins->size;i++){
 		else if(strcmp(command,"requestTransactions")==0){
 			transaction *tr;
 			int numberOfTransactions=0;
-			for(int qaz=i;qaz<strlen(line);qaz++){//command  // edw to eixa i !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+			for(int qaz=i;qaz<strlen(line);qaz++){//command  // edw to eixa i !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 				if(line[qaz]==';'){
 					numberOfTransactions++;
 				}
@@ -368,7 +376,12 @@ for(int i=0;i<bitCoins->size;i++){
 			char *walletID;
 			walletID=malloc((i-start)*sizeof(char));
 			strncpy(walletID,&(line[start]),i-start);
+			walletID[i-start]=0;
 			printf("walletID=%s...\n",walletID);
+
+			oneWallet *wallet;
+			wallet=findUser(wallets,walletID);
+			printf("User: %s has %d$\n",wallet->walletID,wallet->balance);
 		}
 		else if(strcmp(command,"bitCoinStatus")==0){
 			while(line[i]==' ' || line[i]=='\t' || line[i]=='\0'){//an sthn arxh exei kena
@@ -381,7 +394,12 @@ for(int i=0;i<bitCoins->size;i++){
 			char *bitCoinID;
 			bitCoinID=malloc((i-start)*sizeof(char));
 			strncpy(bitCoinID,&(line[start]),i-start);
+			bitCoinID[i-start]=0;//AYTO NA TO BALW PANTOU !!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 			printf("bitCoinID=%s...\n",bitCoinID);
+
+			onebitCoinId *bitcoin;
+			bitcoin=findBitCoin(bitCoins,bitCoinID);
+			printf("bitCoinID: %s \n\t-starting balance = %d$\n\t-number of times used in a transaction = %d\n\t-unspent = %d$\n\n",bitCoinID,bitcoin->pointTree->value,2,3);
 		}
 		else if(strcmp(command,"traceCoin")==0){
 			while(line[i]==' ' || line[i]=='\t' || line[i]=='\0'){//an sthn arxh exei kena

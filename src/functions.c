@@ -265,7 +265,7 @@ void deleteList_node(listNode **list,int num){//delete ton tade kombo
 
 /////////////////////////
 
-int takeData_TransactionsFile(bitCoinIdArray *bitCoins,struct_wallets *wallets,HashTable **senderHashTable,HashTable **receiverHashTable,struct_arguments *arguments){
+int takeData_TransactionsFile(bitCoinIdArray *bitCoins,struct_wallets *wallets,HashTable **senderHashTable,HashTable **receiverHashTable,arrayOfTransactions **ArrayOfTransactions,struct_arguments *arguments){
 	int i;
 	//check if file exists
 	//https://stackoverflow.com/questions/230062/whats-the-best-way-to-check-if-a-file-exists-in-c
@@ -289,10 +289,24 @@ int takeData_TransactionsFile(bitCoinIdArray *bitCoins,struct_wallets *wallets,H
 	string[fsize]=0;//teleiwnei se allagh grammhs ,mporei na 8elei allagh
 	printf("\n\nstring=%s...\n",string);
 	
+	//ftiaxnw ton ArrayOfTransactions
+	(*ArrayOfTransactions)=malloc(sizeof(arrayOfTransactions));
+
+	//blepw posa transaction exw , metraw ta ':' , na to tsekarw pali
+	(*ArrayOfTransactions)->size=0;
+	for(i=0;i<fsize;i++){
+		if(string[i]==':'){
+			(*ArrayOfTransactions)->size++;
+		}
+	}
+
+	(*ArrayOfTransactions)->tr=malloc((*ArrayOfTransactions)->size*sizeof(transaction));
+
+	//MPOREI TA HASH NA PREPEI NA TA KANW AFOU ELEKSW OTI EINAI VALID TA ARXEIA
 
 	//ftiaxnw ta hashTables , sthn arxh ola ta buckets tous einai NULL kai den uparxei kanena bucketNode
 	(*senderHashTable)=malloc(sizeof(HashTable));
-	(*senderHashTable)->numOfUsersPerBucket=(arguments->bucketSize-sizeof(transactionNode *)-sizeof(bucketNode *))/sizeof(oneWallet *);
+	(*senderHashTable)->numOfUsersPerBucket=(arguments->bucketSize-sizeof(int)-sizeof(bucketNode *))/sizeof(bucketElement *);
 	//printf("arguments->bucketSize=%d sizeof(transactionNode *)=%ld sizeof(bucketNode *)=%ld sizeof(oneWallet *)=%ld (*senderHashTable)->numOfUsersPerBucket=%d\n",arguments->bucketSize,sizeof(transactionNode *),sizeof(bucketNode *),sizeof(oneWallet *),(*senderHashTable)->numOfUsersPerBucket);
 	(*senderHashTable)->buckets=malloc(arguments->senderHashtableNumOfEntries*sizeof(bucketNode *));
 	for(i=0;i<arguments->senderHashtableNumOfEntries;i++){
@@ -301,7 +315,7 @@ int takeData_TransactionsFile(bitCoinIdArray *bitCoins,struct_wallets *wallets,H
 
 
 	(*receiverHashTable)=malloc(sizeof(HashTable));
-	(*receiverHashTable)->numOfUsersPerBucket=(arguments->bucketSize-sizeof(transactionNode *)-sizeof(bucketNode *))/sizeof(oneWallet *);
+	(*receiverHashTable)->numOfUsersPerBucket=(arguments->bucketSize-sizeof(int)-sizeof(bucketNode *))/sizeof(bucketElement *);
 	//printf("arguments->bucketSize=%d sizeof(transactionNode *)=%ld sizeof(bucketNode *)=%ld sizeof(oneWallet *)=%ld (*receiverHashTable)->numOfUsersPerBucket=%d\n",arguments->bucketSize,sizeof(transactionNode *),sizeof(bucketNode *),sizeof(oneWallet *),(*receiverHashTable)->numOfUsersPerBucket);
 	(*receiverHashTable)->buckets=malloc(arguments->receiverHashtableNumOfEntries*sizeof(bucketNode *));
 	for(i=0;i<arguments->receiverHashtableNumOfEntries;i++){
@@ -311,11 +325,106 @@ int takeData_TransactionsFile(bitCoinIdArray *bitCoins,struct_wallets *wallets,H
 
 	//diabazw ta transactions
 	int p=0;
+	int paron_tr=0;
 	while(string[p]!=0){//8ELEI DIOR8WSH
+		while(string[p]==' ' || string[p]=='\t' || string[p]=='\n'){//pernaw ta kena
+			p++;
+		}
+		int start=p;
+		while(string[p]!=' ' && string[p]!='\t'){//diabazw transactionID
+			p++;
+		}
+		(*ArrayOfTransactions)->tr[paron_tr].transactionID=malloc((p-start+1)*sizeof(char));
+		strncpy((*ArrayOfTransactions)->tr[paron_tr].transactionID,&(string[start]),p-start);
+		(*ArrayOfTransactions)->tr[paron_tr].transactionID[p-start]=0;
 
+		while(string[p]==' ' || string[p]=='\t' || string[p]=='\n'){//pernaw ta kena
+			p++;
+		}
+		start=p;
+		while(string[p]!=' ' && string[p]!='\t'){//diabazw senderWalletID
+			p++;
+		}
+		(*ArrayOfTransactions)->tr[paron_tr].senderWalletID=malloc((p-start+1)*sizeof(char));
+		strncpy((*ArrayOfTransactions)->tr[paron_tr].senderWalletID,&(string[start]),p-start);
+		(*ArrayOfTransactions)->tr[paron_tr].senderWalletID[p-start]=0;
+
+		while(string[p]==' ' || string[p]=='\t' || string[p]=='\n'){//pernaw ta kena
+			p++;
+		}
+		start=p;
+		while(string[p]!=' ' && string[p]!='\t'){//diabazw receiverWalletID
+			p++;
+		}
+		(*ArrayOfTransactions)->tr[paron_tr].receiverWalletID=malloc((p-start+1)*sizeof(char));
+		strncpy((*ArrayOfTransactions)->tr[paron_tr].receiverWalletID,&(string[start]),p-start);
+		(*ArrayOfTransactions)->tr[paron_tr].receiverWalletID[p-start]=0;
+
+		while(string[p]==' ' || string[p]=='\t' || string[p]=='\n'){//pernaw ta kena
+			p++;
+		}
+		(*ArrayOfTransactions)->tr[paron_tr].value=0;
+		while(string[p]!=' ' && string[p]!='\t'){//diabazw receiverWalletID
+			(*ArrayOfTransactions)->tr[paron_tr].value=(*ArrayOfTransactions)->tr[paron_tr].value*10+string[p]-'0';
+			p++;
+		}
+
+		while(string[p]==' ' || string[p]=='\t' || string[p]=='\n'){//pernaw ta kena
+			p++;
+		}
+		(*ArrayOfTransactions)->tr[paron_tr].date=malloc(sizeof(struct_date));
+		(*ArrayOfTransactions)->tr[paron_tr].date->day=0;
+		while(string[p]!='-'){//diabazw receiverWalletID
+			(*ArrayOfTransactions)->tr[paron_tr].date->day=(*ArrayOfTransactions)->tr[paron_tr].date->day*10+string[p]-'0';
+			p++;
+		}
+		p++;
+		(*ArrayOfTransactions)->tr[paron_tr].date->month=0;
+		while(string[p]!='-'){//diabazw receiverWalletID
+			(*ArrayOfTransactions)->tr[paron_tr].date->month=(*ArrayOfTransactions)->tr[paron_tr].date->month*10+string[p]-'0';
+			p++;
+		}
+		p++;
+		(*ArrayOfTransactions)->tr[paron_tr].date->year=0;
+		while(string[p]!=' ' && string[p]!='\t'){//diabazw receiverWalletID
+			(*ArrayOfTransactions)->tr[paron_tr].date->year=(*ArrayOfTransactions)->tr[paron_tr].date->year*10+string[p]-'0';
+			p++;
+		}
+
+		while(string[p]==' ' || string[p]=='\t' || string[p]=='\n'){//pernaw ta kena
+			p++;
+		}
+		(*ArrayOfTransactions)->tr[paron_tr].time=malloc(sizeof(struct_time));
+		(*ArrayOfTransactions)->tr[paron_tr].time->hour=0;
+		while(string[p]!=':'){//diabazw receiverWalletID
+			(*ArrayOfTransactions)->tr[paron_tr].time->hour=(*ArrayOfTransactions)->tr[paron_tr].time->hour*10+string[p]-'0';
+			p++;
+		}
+		p++;
+		(*ArrayOfTransactions)->tr[paron_tr].time->minutes=0;
+		while(string[p]!=' ' && string[p]!='\t' && string[p]!='\n'){//diabazw receiverWalletID
+			(*ArrayOfTransactions)->tr[paron_tr].time->minutes=(*ArrayOfTransactions)->tr[paron_tr].time->minutes*10+string[p]-'0';
+			p++;
+		}
+
+		while(string[p]==' ' || string[p]=='\t' || string[p]=='\n'){//pernaw ta kena
+			p++;
+		}
+
+		//printf("%s %s %s %d %d-%d-%d %d:%d\n",(*ArrayOfTransactions)->tr[paron_tr].transactionID,(*ArrayOfTransactions)->tr[paron_tr].senderWalletID,(*ArrayOfTransactions)->tr[paron_tr].receiverWalletID,(*ArrayOfTransactions)->tr[paron_tr].value,(*ArrayOfTransactions)->tr[paron_tr].date->day,(*ArrayOfTransactions)->tr[paron_tr].date->month,(*ArrayOfTransactions)->tr[paron_tr].date->year,(*ArrayOfTransactions)->tr[paron_tr].time->hour,(*ArrayOfTransactions)->tr[paron_tr].time->minutes);
+
+		if(checkForDuplicateTransactionID((*ArrayOfTransactions),paron_tr)==-1){
+			printf("\n\nDuplicateTransactionID!!!\n\n\n");
+			return -1;
+		}
+
+		paron_tr++;
+
+		/*
 		transaction *tr;
 		tr=malloc(sizeof(transaction));
 
+		
 		while(string[p]==' ' || string[p]=='\t' || string[p]=='\n'){//pernaw ta kena
 			p++;
 		}
@@ -401,74 +510,173 @@ int takeData_TransactionsFile(bitCoinIdArray *bitCoins,struct_wallets *wallets,H
 		}
 
 		printf("%s %s %s %d %d-%d-%d %d:%d\n",tr->transactionID,tr->senderWalletID,tr->receiverWalletID,tr->value,tr->date->day,tr->date->month,tr->date->year,tr->time->hour,tr->time->minutes);
+		*/
 
-		/*if(executeTransaction(bitCoins,wallets,(*senderHashTable),(*receiverHashTable),arguments,tr)==-1){//mallon den xreiazetai if auth h sunarthsh na to bgalw !!!!!!!!!!!!!!!!!!!!!!!!!!!!
+		//metaferw to paron transaction ston pinaka me ta transaction
+		//(*ArrayOfTransactions)->tr[paron_tr];
+
+		if(executeTransaction(bitCoins,wallets,(*senderHashTable),(*receiverHashTable),arguments,&((*ArrayOfTransactions)->tr[paron_tr-1]))==-1){//mallon den xreiazetai if auth h sunarthsh na to bgalw !!!!!!!!!!!!!!!!!!!!!!!!!!!!
 			return -1;
-		}*/
+		}
 	}
 
 	return 0;
 }
 
-/*int executeTransaction(bitCoinIdArray *bitCoins,struct_wallets *wallets,HashTable *senderHashTable,HashTable *receiverHashTable,struct_arguments *arguments,transaction *tr){
+int executeTransaction(bitCoinIdArray *bitCoins,struct_wallets *wallets,HashTable *senderHashTable,HashTable *receiverHashTable,struct_arguments *arguments,transaction *tr){
+
 		if(checkIfSenderHasEnoughBalance(wallets,tr)==-1){
 			printf("NOT ENOUGHT BALANCE!!!\n");
 			return 0;
 		}
 
-		//spaw to bitcoin
-		oneWallet *sender;
-		sender=findUser(wallets,tr->senderWalletID);
-		sender->list->
+		//spaw to bitcoin , den 8a spaw to bitCoin , alla 8a phgainw sto wallet tou sender kai 8a spaw ton kombo apo to bitCoin pou exei
+		//oneWallet *sender;
+		//sender=findUser(wallets,tr->senderWalletID);
+		//sender->list->
 
 		//ft
 		int sender_offset=hash(tr->senderWalletID,arguments->senderHashtableNumOfEntries);
 		int receiver_offset=hash(tr->senderWalletID,arguments->receiverHashtableNumOfEntries);
 
+		//gia ton sender
+		bucketNode *sender_temp;
+		int sender_point_on_bucket;
+
 		if(senderHashTable->buckets[sender_offset]==NULL){
 			senderHashTable->buckets[sender_offset]=malloc(sizeof(bucketNode));
-			senderHashTable->buckets[sender_offset]->users=malloc(senderHashTable->numOfUsersPerBucket*sizeof(oneWallet *));
+			senderHashTable->buckets[sender_offset]->arrayOfUsers=malloc(senderHashTable->numOfUsersPerBucket*sizeof(bucketElement));
 			senderHashTable->buckets[sender_offset]->last_entry=0;
-			senderHashTable->buckets[sender_offset]->users[0]=findUser(wallets,tr->senderWalletID);//sunarthsh pou na epistrefei to deikth sto wallet
-			senderHashTable->buckets[sender_offset]->transactionList=malloc(sizeof(transactionNode));
+			senderHashTable->buckets[sender_offset]->arrayOfUsers[0].users=findUser(wallets,tr->senderWalletID);//sunarthsh pou epistrefei to deikth sto wallet
+			//senderHashTable->buckets[sender_offset]->arrayOfUsers[0].transactionList=malloc(sizeof(transactionNode));
 			//senderHashTable->buckets[sender_offset]->transactionList->withUser=
-			senderHashTable->buckets[sender_offset]->transactionList->next=NULL;
+			//senderHashTable->buckets[sender_offset]->arrayOfUsers[0].transactionList->next=NULL;
 			senderHashTable->buckets[sender_offset]->next=NULL;
+printf("NULL senderHashTable->numOfUsersPerBucket=%d\n",senderHashTable->numOfUsersPerBucket);
+
+			sender_temp=senderHashTable->buckets[sender_offset];
+			sender_point_on_bucket=0;
 		}
 		else{
-			bucketNode *temp;
-			if(checkIfUserIsAlreadyInHashTable()){
+			//bucketNode *sender_temp;
+			if(checkIfUserIsAlreadyInHashTable(senderHashTable,sender_offset,tr->senderWalletID,&sender_temp,&sender_point_on_bucket)){//na epistrefei kai to deikth ekei pou ton brhke
+				
+			}
+			else{//den uparxei sto hash table
+				sender_temp=senderHashTable->buckets[sender_offset];
+				while(sender_temp->last_entry+1>=senderHashTable->numOfUsersPerBucket && sender_temp->next!=NULL){//paw sto telos tis lista apo buckets
+					sender_temp=sender_temp->next;
+				}
+
+				if(sender_temp->last_entry+1>=senderHashTable->numOfUsersPerBucket){//ftiaxnw neo bucket
+					sender_temp->next=malloc(sizeof(bucketNode));
+					sender_temp=sender_temp->next;
+
+					sender_temp->arrayOfUsers=malloc(senderHashTable->numOfUsersPerBucket*sizeof(bucketElement));
+					sender_temp->last_entry=0;
+					sender_temp->arrayOfUsers[0].users=findUser(wallets,tr->senderWalletID);//sunarthsh pou na epistrefei to deikth sto wallet
+					//sender_temp->transactionList=malloc(sizeof(transactionNode));
+					//sender_temp->transactionList->withUser=
+					//sender_temp->transactionList->next=NULL;
+					sender_temp->next=NULL;
+
+					sender_point_on_bucket=0;
+				}
+				else{
+					sender_temp->last_entry++;
+					int lentry=sender_temp->last_entry;
+					sender_temp->arrayOfUsers[lentry].users=findUser(wallets,tr->senderWalletID);
+					//sender_temp->transactionList=malloc(sizeof(transactionNode));
+					//sender_temp->transactionList->withUser=
+					//sender_temp->transactionList->next=NULL;
+
+					sender_point_on_bucket=lentry;
+				}
+			}
+		}
+
+		//omoiws gia ton receiver
+		bucketNode *receiver_temp;
+		int receiver_point_on_bucket;
+
+		if(receiverHashTable->buckets[receiver_offset]==NULL){
+			receiverHashTable->buckets[receiver_offset]=malloc(sizeof(bucketNode));
+			receiverHashTable->buckets[receiver_offset]->arrayOfUsers=malloc(receiverHashTable->numOfUsersPerBucket*sizeof(bucketElement));
+			receiverHashTable->buckets[receiver_offset]->last_entry=0;
+			receiverHashTable->buckets[receiver_offset]->arrayOfUsers[0].users=findUser(wallets,tr->receiverWalletID);//sunarthsh pou epistrefei to deikth sto wallet
+			//receiverHashTable->buckets[receiver_offset]->arrayOfUsers[0].transactionList=malloc(sizeof(transactionNode));
+			//receiverHashTable->buckets[receiver_offset]->transactionList->withUser=
+			//receiverHashTable->buckets[receiver_offset]->arrayOfUsers[0].transactionList->next=NULL;
+			receiverHashTable->buckets[receiver_offset]->next=NULL;
+printf("NULL receiverHashTable->numOfUsersPerBucket=%d\n",receiverHashTable->numOfUsersPerBucket);
+
+			receiver_temp=receiverHashTable->buckets[receiver_offset];
+			receiver_point_on_bucket=0;
+		}
+		else{
+			//bucketNode *receiver_temp;
+			if(checkIfUserIsAlreadyInHashTable(receiverHashTable,receiver_offset,tr->receiverWalletID,&receiver_temp,&receiver_point_on_bucket)){
 								
 			}
 			else{//den uparxei sto hash table
-				temp=senderHashTable->buckets[sender_offset];
-				while(temp->last_entry+1>=senderHashTable->numOfUsersPerBucket && temp->next!=NULL){
-					temp=temp->next;
+				receiver_temp=receiverHashTable->buckets[receiver_offset];
+				while(receiver_temp->last_entry+1>=receiverHashTable->numOfUsersPerBucket && receiver_temp->next!=NULL){//paw sto telos tis lista apo buckets
+					receiver_temp=receiver_temp->next;
 				}
 
-				if(temp->last_entry+1>=senderHashTable->numOfUsersPerBucket){//ftiaxnw neo bucket
-					temp->next=malloc(sizeof(bucketNode));
-					temp=temp->next;
+				if(receiver_temp->last_entry+1>=receiverHashTable->numOfUsersPerBucket){//ftiaxnw neo bucket
+					receiver_temp->next=malloc(sizeof(bucketNode));
+					receiver_temp=receiver_temp->next;
 
-					temp->users=malloc(senderHashTable->numOfUsersPerBucket*sizeof(oneWallet *));
-					temp->last_entry=0;
-					temp->users[0]=findUser(wallets,tr->senderWalletID);//sunarthsh pou na epistrefei to deikth sto wallet
-					temp->transactionList=malloc(sizeof(transactionNode));
-					//temp->transactionList->withUser=
-					temp->transactionList->next=NULL;
-					temp->next=NULL;
+					receiver_temp->arrayOfUsers=malloc(receiverHashTable->numOfUsersPerBucket*sizeof(bucketElement));
+					receiver_temp->last_entry=0;
+					receiver_temp->arrayOfUsers[0].users=findUser(wallets,tr->receiverWalletID);//sunarthsh pou na epistrefei to deikth sto wallet
+					//receiver_temp->transactionList=malloc(sizeof(transactionNode));
+					//receiver_temp->transactionList->withUser=
+					//receiver_temp->transactionList->next=NULL;
+					receiver_temp->next=NULL;
+
+					receiver_point_on_bucket=0;
 				}
 				else{
-					temp->last_entry++;
-					int lentry=temp->last_entry;
-					temp->users[lentry]=findUser(wallets,tr->senderWalletID);
-					temp->transactionList=malloc(sizeof(transactionNode));
-					//temp->transactionList->withUser=
-					temp->transactionList->next=NULL;
+					receiver_temp->last_entry++;
+					int lentry=receiver_temp->last_entry;
+					receiver_temp->arrayOfUsers[lentry].users=findUser(wallets,tr->receiverWalletID);
+					//receiver_temp->transactionList=malloc(sizeof(transactionNode));
+					//receiver_temp->transactionList->withUser=
+					//receiver_temp->transactionList->next=NULL;
+
+					receiver_point_on_bucket=lentry;
 				}
 			}
 		}
-}*/
+
+		//blepw poia bitCoin exei o sender wste na kanw thn sunalagh, exw tsekarei oti o sender exei ta xrhmata pou xreiazontai
+		//to last entry mou leei 
+		printf("AAA %d %d %d %d\n",sender_offset,sender_point_on_bucket,receiver_offset,receiver_point_on_bucket);
+		//ara exw ta 	sender_offset/receiver_offset ->se poio kouti apo to ht , MALLON AYTA DEN 8A TA XREIASTW
+		//		sender_point_on_bucket/receiver_point_on_bucket ->se poio kouti mesa sto bucket
+		//		sender_temp/receiver_temp ->deikth sto bucket pou anoikei o sender h o receiver antistoixa
+
+
+		//ananewnw to balance tou sender kai tou receiver
+		sender_temp->arrayOfUsers[sender_point_on_bucket].users->balance-=tr->value;
+		receiver_temp->arrayOfUsers[receiver_point_on_bucket].users->balance+=tr->value;
+
+		//paw kai spaw ta dentra , mporw na kanw kai traverse to dentro
+		//bgazw ton kombo me to bit coin kai an exei upoloipo , dld den exw point sthn riza
+
+		//usersBitCoinsNode *sender_bit_coin_list;
+		//sender_bit_coin_list=sender_temp->arrayOfUsers[sender_point_on_bucket].users->list;
+		int remaining=tr->value;
+		while(remaining>0){//metaferw ta bitcoins
+			remaining-=sender_temp->arrayOfUsers[sender_point_on_bucket].users->list->usersPartOfBitCoin;
+			
+			
+		}
+
+	return 1;
+}
 
 int checkIfSenderHasEnoughBalance(struct_wallets *wallets,transaction *tr){
 	for(int i=0;i<wallets->size;i++){
@@ -491,6 +699,15 @@ oneWallet *findUser(struct_wallets *wallets,char *str){
 	for(int i=0;i<wallets->size;i++){
 		if(strcmp(wallets->users[i].walletID,str)==0){//psaxnw ton xrhsth
 			return &(wallets->users[i]);
+		}
+	}
+	return NULL;
+}
+
+onebitCoinId *findBitCoin(bitCoinIdArray *bitCoins,char *str){
+	for(int i=0;i<bitCoins->size;i++){
+		if(strcmp(bitCoins->array[i].bitcoinid,str)==0){//psaxnw ton xrhsth
+			return &(bitCoins->array[i]);
 		}
 	}
 	return NULL;
@@ -593,3 +810,38 @@ transaction *breakTransaction(char *string,int begin,int end){
 			return -1;
 		}*/
 }
+
+int checkForDuplicateTransactionID(arrayOfTransactions *aot,int point){//to point einai pou balame to teleutaio stoixeio
+	for(int i=0;i<point;i++){
+		if(strcmp(aot->tr[i].transactionID,aot->tr[point].transactionID)==0){
+				//printf("\n\nDUPLICAT USERNAME!!!\n\n\n");
+				return -1;
+		}
+	}
+	return 0;
+}
+
+int checkIfUserIsAlreadyInHashTable(HashTable *ht,int offset,char *str,bucketNode **temp_to_bucket,int *point_on_bucket){
+	bucketNode *temp;
+	temp=ht->buckets[offset];
+	while(temp!=NULL){
+		for(int i=0;i<=temp->last_entry;i++){
+			if(strcmp(temp->arrayOfUsers[i].users->walletID,str)==0){
+				printf("O %s htan apo prin sto hash\n",temp->arrayOfUsers[i].users->walletID);
+				(*temp_to_bucket)=temp;
+				*point_on_bucket=i;
+				//sleep(5);
+				return 1;//uparxei
+			}
+		}
+
+		temp=temp->next;
+	}
+
+	return 0;//den uparxei
+}
+
+
+
+
+
