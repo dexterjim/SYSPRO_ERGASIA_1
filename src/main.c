@@ -414,7 +414,7 @@ for(int i=0;i<bitCoins->size;i++){
 
 			onebitCoinId *bitcoin;
 			bitcoin=findBitCoin(bitCoins,bitCoinID);
-			printf("bitCoinID: %s \n\t-starting balance = %d$\n\t-number of times used in a transaction = %d\n\t-unspent = %d$\n\n",bitCoinID,bitcoin->pointTree->value,2,3);
+			printf("bitCoinID: %s \n\t-starting value = %d$\n\t-number of times used in a transaction = %d\n\t-unspent = %d$\n\n",bitCoinID,bitcoin->pointTree->value,bitcoin->numOfTransactions,findUnspent(bitcoin->pointTree));
 		}
 		else if(strcmp(command,"traceCoin")==0){
 			while(line[i]==' ' || line[i]=='\t' || line[i]=='\0'){//an sthn arxh exei kena
