@@ -52,8 +52,9 @@ struct oneWallet{
 };
 
 struct usersBitCoinsNode{
-	int usersPartOfBitCoin;//MALLON DEN XREIAZETAI
-	int offsetOfBitCoin;//to offset ston pinaka bitCoinIdArray
+	//int usersPartOfBitCoin;//MALLON DEN XREIAZETAI
+	//int offsetOfBitCoin;//to offset ston pinaka bitCoinIdArray
+	bitCoinIdTreeNode *treenode;
 	usersBitCoinsNode *next;
 };
 //
@@ -63,7 +64,8 @@ int checkForDuplicateWalletID(struct_wallets *wallets,int point);
 int checkForDuplicatebitCoinID(bitCoinIdArray *bitCoins,int point);
 
 void printList(usersBitCoinsNode *list);
-void insertList(usersBitCoinsNode **list,int value,int offset);
+void insertList(usersBitCoinsNode **list,bitCoinIdTreeNode *node);
+void deleteList_node(usersBitCoinsNode **list);
 
 //////////////////
 typedef struct HashTable HashTable;
@@ -131,7 +133,7 @@ int hash(char *str,int mod);
 transaction *breakTransaction(char *string,int begin,int end);
 int checkForDuplicateTransactionID(arrayOfTransactions *aot,int point);
 int checkIfUserIsAlreadyInHashTable(HashTable *ht,int offset,char *str,bucketNode **temp,int *point_on_bucket);
-
+void printTree(bitCoinIdTreeNode *node);
 
 
 

@@ -48,6 +48,19 @@ printf("TRANSACTION from file with size=%d\n",ArrayOfTransactions->size);
 for(int i=0;i<ArrayOfTransactions->size;i++){
 	printf("%s %s %s %d %d-%d-%d %d:%d\n",ArrayOfTransactions->tr[i].transactionID,ArrayOfTransactions->tr[i].senderWalletID,ArrayOfTransactions->tr[i].receiverWalletID,ArrayOfTransactions->tr[i].value,ArrayOfTransactions->tr[i].date->day,ArrayOfTransactions->tr[i].date->month,ArrayOfTransactions->tr[i].date->year,ArrayOfTransactions->tr[i].time->hour,ArrayOfTransactions->tr[i].time->minutes);
 }
+
+
+printf("\n\nWALLETS with wallets->size=%d\n",wallets->size);
+for(int i=0;i<wallets->size;i++){
+	printf("wallets->users[%d].walletID=%s... wallets->users[i].balance=%d\n\t",i,wallets->users[i].walletID,wallets->users[i].balance);
+	printList(wallets->users[i].list);
+}
+
+for(int i=0;i<bitCoins->size;i++){
+	printf("id=%s\n",bitCoins->array[i].bitcoinid);
+	printTree(bitCoins->array[i].pointTree);
+	printf("----------------------\n");
+}
 /////
 
 	//diabazw input tou xrhsth
@@ -82,6 +95,8 @@ for(int i=0;i<ArrayOfTransactions->size;i++){
 			transaction *tr;
 			//tr=malloc(sizeof(transaction));
 			tr=breakTransaction(line,i,strlen(line));
+
+			executeTransaction(bitCoins,wallets,senderHashTable,receiverHashTable,arguments,tr);
 		}
 		else if(strcmp(command,"requestTransactions")==0){
 			transaction *tr;

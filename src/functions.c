@@ -162,7 +162,7 @@ int takeData_BitCoinBalanceFile(bitCoinIdArray **bitCoins,struct_wallets **walle
 				return -1;
 			}
 			(*wallets)->users[walletcount].balance+=arguments->bitCoinValue;//pros8etw sto balance thn aksia tou bitcoin pou molis diabasa
-			insertList(&((*wallets)->users[walletcount].list),arguments->bitCoinValue,bitcoincount);
+			insertList(&((*wallets)->users[walletcount].list),(*bitCoins)->array[bitcoincount].pointTree);
 			bitcoincount++;
 
 			while(string[p]==' ' || string[p]=='\t'){//pernaw ta kena
@@ -210,18 +210,20 @@ void printList(usersBitCoinsNode *list){
 
 	temp=list;
 	while(temp!=NULL){
-		printf(" %2d %2d //",temp->usersPartOfBitCoin,temp->offsetOfBitCoin);
+		//printf(" %2d %2d //",temp->usersPartOfBitCoin,temp->offsetOfBitCoin);
+		printf(" %s %d //",temp->treenode->walletID,temp->treenode->value);
 		temp=temp->next;
 	}
 	printf("\n");
 }
 
-void insertList(usersBitCoinsNode **list,int value,int offset){
+void insertList(usersBitCoinsNode **list,bitCoinIdTreeNode *node){//MPORW NA TO BAZW STHN ARXH THS LISTA WSTE NA MHN XANW XRONO NA DIASXIZW THN LISTA
 	usersBitCoinsNode *temp;
 	if((*list)==NULL){
 		(*list)=malloc(sizeof(usersBitCoinsNode));
-		(*list)->usersPartOfBitCoin=value;
-		(*list)->offsetOfBitCoin=offset;
+		//(*list)->usersPartOfBitCoin=value;
+		//(*list)->offsetOfBitCoin=offset;
+		(*list)->treenode=node;
 		(*list)->next=NULL;
 	}
 	else{
@@ -230,38 +232,23 @@ void insertList(usersBitCoinsNode **list,int value,int offset){
 			temp=temp->next;
 		}
 		temp->next=malloc(sizeof(usersBitCoinsNode));
-		temp->next->usersPartOfBitCoin=value;
-		temp->next->offsetOfBitCoin=offset;
+		//temp->next->usersPartOfBitCoin=value;
+		//temp->next->offsetOfBitCoin=offset;
+		temp->next->treenode=node;
 		temp->next->next=NULL;
 	}
 }
 
-/*
-void deleteList_node(listNode **list,int num){//delete ton tade kombo
-	listNode *temp,*prev,*del;
 
-	if(num==1){//diargafw thn riza
-		if((*list)!=NULL){
-			del=(*list);
-			(*list)=(*list)->next;
-			free(del);
-		}
-	}
-	else if(num>=2){
-		temp=(*list);
-		while(temp!=NULL){
-			if(num==1){
-				prev->next=temp->next;
-				free(temp);
-				return;
-			}
-			num--;
-			prev=temp;
-			temp=temp->next;
-		}
+void deleteList_node(usersBitCoinsNode **list){//delete ton prwto kombo
+	usersBitCoinsNode *del;
+
+	if((*list)!=NULL){
+		del=(*list);
+		(*list)=(*list)->next;
+		free(del);
 	}
 }
-*/
 
 /////////////////////////
 
@@ -670,9 +657,45 @@ printf("NULL receiverHashTable->numOfUsersPerBucket=%d\n",receiverHashTable->num
 		//sender_bit_coin_list=sender_temp->arrayOfUsers[sender_point_on_bucket].users->list;
 		int remaining=tr->value;
 		while(remaining>0){//metaferw ta bitcoins
-			remaining-=sender_temp->arrayOfUsers[sender_point_on_bucket].users->list->usersPartOfBitCoin;
-			
-			
+			if(remaining<sender_temp->arrayOfUsers[sender_point_on_bucket].users->list->treenode->value){//afhnei upoloipo ston kombo ara 2 komboi
+				//left
+				sender_temp->arrayOfUsers[sender_point_on_bucket].users->list->treenode->left=malloc(sizeof(bitCoinIdTreeNode));//ekei ta edwse
+				sender_temp->arrayOfUsers[sender_point_on_bucket].users->list->treenode->left->walletID=malloc((strlen(tr->receiverWalletID)+1)*sizeof(char));
+				strcpy(sender_temp->arrayOfUsers[sender_point_on_bucket].users->list->treenode->left->walletID,tr->receiverWalletID);
+				sender_temp->arrayOfUsers[sender_point_on_bucket].users->list->treenode->left->value=remaining;
+				sender_temp->arrayOfUsers[sender_point_on_bucket].users->list->treenode->left->left=NULL;
+				sender_temp->arrayOfUsers[sender_point_on_bucket].users->list->treenode->left->right=NULL;
+
+				insertList(&(receiver_temp->arrayOfUsers[receiver_point_on_bucket].users->list),sender_temp->arrayOfUsers[sender_point_on_bucket].users->list->treenode->left);
+
+				//right
+				sender_temp->arrayOfUsers[sender_point_on_bucket].users->list->treenode->right=malloc(sizeof(bitCoinIdTreeNode));
+				sender_temp->arrayOfUsers[sender_point_on_bucket].users->list->treenode->right->walletID=malloc((strlen(tr->senderWalletID)+1)*sizeof(char));
+				strcpy(sender_temp->arrayOfUsers[sender_point_on_bucket].users->list->treenode->right->walletID,tr->senderWalletID);
+				sender_temp->arrayOfUsers[sender_point_on_bucket].users->list->treenode->right->value=sender_temp->arrayOfUsers[sender_point_on_bucket].users->list->treenode->value-remaining;
+				sender_temp->arrayOfUsers[sender_point_on_bucket].users->list->treenode->right->left=NULL;
+				sender_temp->arrayOfUsers[sender_point_on_bucket].users->list->treenode->right->right=NULL;
+
+				insertList(&(sender_temp->arrayOfUsers[sender_point_on_bucket].users->list),sender_temp->arrayOfUsers[sender_point_on_bucket].users->list->treenode->right);
+			}
+			else{//ton xreiazomaste olo , enan kombo , (gia tipikous logous ton left)
+				//left
+				sender_temp->arrayOfUsers[sender_point_on_bucket].users->list->treenode->left=malloc(sizeof(bitCoinIdTreeNode));//ekei ta edwse
+				sender_temp->arrayOfUsers[sender_point_on_bucket].users->list->treenode->left->walletID=malloc((strlen(tr->receiverWalletID)+1)*sizeof(char));
+				strcpy(sender_temp->arrayOfUsers[sender_point_on_bucket].users->list->treenode->left->walletID,tr->receiverWalletID);
+				sender_temp->arrayOfUsers[sender_point_on_bucket].users->list->treenode->left->value=sender_temp->arrayOfUsers[sender_point_on_bucket].users->list->treenode->value;
+				sender_temp->arrayOfUsers[sender_point_on_bucket].users->list->treenode->left->left=NULL;
+				sender_temp->arrayOfUsers[sender_point_on_bucket].users->list->treenode->left->right=NULL;
+
+				insertList(&(receiver_temp->arrayOfUsers[receiver_point_on_bucket].users->list),sender_temp->arrayOfUsers[sender_point_on_bucket].users->list->treenode->left);
+
+			}
+
+			remaining-=sender_temp->arrayOfUsers[sender_point_on_bucket].users->list->treenode->value;
+			printf("remaining=%d\n",remaining);
+
+			//digrafw ton kombo apo thn lista kai bazw ta upoloipa, na ta bazw panw kai na bgazw thn "riza edw" !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+			deleteList_node(&(sender_temp->arrayOfUsers[sender_point_on_bucket].users->list));
 		}
 
 	return 1;
@@ -842,6 +865,13 @@ int checkIfUserIsAlreadyInHashTable(HashTable *ht,int offset,char *str,bucketNod
 }
 
 
+void printTree(bitCoinIdTreeNode *node){
+	if(node==NULL)return;
+	printf("%s %d",node->walletID,node->value);
+	printf("\n");
 
+	printTree(node->left);
+	printTree(node->right);
+}
 
 
