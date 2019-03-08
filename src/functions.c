@@ -538,9 +538,10 @@ int executeTransaction(bitCoinIdArray *bitCoins,struct_wallets *wallets,HashTabl
 			senderHashTable->buckets[sender_offset]->arrayOfUsers=malloc(senderHashTable->numOfUsersPerBucket*sizeof(bucketElement));
 			senderHashTable->buckets[sender_offset]->last_entry=0;
 			senderHashTable->buckets[sender_offset]->arrayOfUsers[0].users=findUser(wallets,tr->senderWalletID);//sunarthsh pou epistrefei to deikth sto wallet
-			//senderHashTable->buckets[sender_offset]->arrayOfUsers[0].transactionList=malloc(sizeof(transactionNode));
+			senderHashTable->buckets[sender_offset]->arrayOfUsers[0].transactionList=malloc(sizeof(transactionNode));
 			//senderHashTable->buckets[sender_offset]->transactionList->withUser=
-			//senderHashTable->buckets[sender_offset]->arrayOfUsers[0].transactionList->next=NULL;
+			senderHashTable->buckets[sender_offset]->arrayOfUsers[0].transactionList->tr=tr;
+			senderHashTable->buckets[sender_offset]->arrayOfUsers[0].transactionList->next=NULL;
 			senderHashTable->buckets[sender_offset]->next=NULL;
 printf("NULL senderHashTable->numOfUsersPerBucket=%d\n",senderHashTable->numOfUsersPerBucket);
 
@@ -550,7 +551,15 @@ printf("NULL senderHashTable->numOfUsersPerBucket=%d\n",senderHashTable->numOfUs
 		else{
 			//bucketNode *sender_temp;
 			if(checkIfUserIsAlreadyInHashTable(senderHashTable,sender_offset,tr->senderWalletID,&sender_temp,&sender_point_on_bucket)){//na epistrefei kai to deikth ekei pou ton brhke
-				
+				transactionNode *temp;
+				temp=sender_temp->arrayOfUsers[sender_point_on_bucket].transactionList;
+				while(temp->next!=NULL){
+					temp=temp->next;
+				}
+				temp->next=malloc(sizeof(transactionNode));
+				//temp->next->withuser
+				temp->next->tr=tr;
+				temp->next->next=NULL;
 			}
 			else{//den uparxei sto hash table
 				sender_temp=senderHashTable->buckets[sender_offset];
@@ -565,9 +574,10 @@ printf("NULL senderHashTable->numOfUsersPerBucket=%d\n",senderHashTable->numOfUs
 					sender_temp->arrayOfUsers=malloc(senderHashTable->numOfUsersPerBucket*sizeof(bucketElement));
 					sender_temp->last_entry=0;
 					sender_temp->arrayOfUsers[0].users=findUser(wallets,tr->senderWalletID);//sunarthsh pou na epistrefei to deikth sto wallet
-					//sender_temp->transactionList=malloc(sizeof(transactionNode));
+					sender_temp->arrayOfUsers[0].transactionList=malloc(sizeof(transactionNode));
 					//sender_temp->transactionList->withUser=
-					//sender_temp->transactionList->next=NULL;
+					sender_temp->arrayOfUsers[0].transactionList->tr=tr;
+					sender_temp->arrayOfUsers[0].transactionList->next=NULL;
 					sender_temp->next=NULL;
 
 					sender_point_on_bucket=0;
@@ -576,9 +586,10 @@ printf("NULL senderHashTable->numOfUsersPerBucket=%d\n",senderHashTable->numOfUs
 					sender_temp->last_entry++;
 					int lentry=sender_temp->last_entry;
 					sender_temp->arrayOfUsers[lentry].users=findUser(wallets,tr->senderWalletID);
-					//sender_temp->transactionList=malloc(sizeof(transactionNode));
+					sender_temp->arrayOfUsers[lentry].transactionList=malloc(sizeof(transactionNode));
 					//sender_temp->transactionList->withUser=
-					//sender_temp->transactionList->next=NULL;
+					sender_temp->arrayOfUsers[lentry].transactionList->tr=tr;
+					sender_temp->arrayOfUsers[lentry].transactionList->next=NULL;
 
 					sender_point_on_bucket=lentry;
 				}
@@ -594,9 +605,10 @@ printf("NULL senderHashTable->numOfUsersPerBucket=%d\n",senderHashTable->numOfUs
 			receiverHashTable->buckets[receiver_offset]->arrayOfUsers=malloc(receiverHashTable->numOfUsersPerBucket*sizeof(bucketElement));
 			receiverHashTable->buckets[receiver_offset]->last_entry=0;
 			receiverHashTable->buckets[receiver_offset]->arrayOfUsers[0].users=findUser(wallets,tr->receiverWalletID);//sunarthsh pou epistrefei to deikth sto wallet
-			//receiverHashTable->buckets[receiver_offset]->arrayOfUsers[0].transactionList=malloc(sizeof(transactionNode));
+			receiverHashTable->buckets[receiver_offset]->arrayOfUsers[0].transactionList=malloc(sizeof(transactionNode));
 			//receiverHashTable->buckets[receiver_offset]->transactionList->withUser=
-			//receiverHashTable->buckets[receiver_offset]->arrayOfUsers[0].transactionList->next=NULL;
+			receiverHashTable->buckets[receiver_offset]->arrayOfUsers[0].transactionList->tr=tr;
+			receiverHashTable->buckets[receiver_offset]->arrayOfUsers[0].transactionList->next=NULL;
 			receiverHashTable->buckets[receiver_offset]->next=NULL;
 printf("NULL receiverHashTable->numOfUsersPerBucket=%d\n",receiverHashTable->numOfUsersPerBucket);
 
@@ -606,7 +618,15 @@ printf("NULL receiverHashTable->numOfUsersPerBucket=%d\n",receiverHashTable->num
 		else{
 			//bucketNode *receiver_temp;
 			if(checkIfUserIsAlreadyInHashTable(receiverHashTable,receiver_offset,tr->receiverWalletID,&receiver_temp,&receiver_point_on_bucket)){
-								
+				transactionNode *temp;
+				temp=receiver_temp->arrayOfUsers[receiver_point_on_bucket].transactionList;
+				while(temp->next!=NULL){
+					temp=temp->next;
+				}
+				temp->next=malloc(sizeof(transactionNode));
+				//temp->next->withuser
+				temp->next->tr=tr;
+				temp->next->next=NULL;
 			}
 			else{//den uparxei sto hash table
 				receiver_temp=receiverHashTable->buckets[receiver_offset];
@@ -621,9 +641,10 @@ printf("NULL receiverHashTable->numOfUsersPerBucket=%d\n",receiverHashTable->num
 					receiver_temp->arrayOfUsers=malloc(receiverHashTable->numOfUsersPerBucket*sizeof(bucketElement));
 					receiver_temp->last_entry=0;
 					receiver_temp->arrayOfUsers[0].users=findUser(wallets,tr->receiverWalletID);//sunarthsh pou na epistrefei to deikth sto wallet
-					//receiver_temp->transactionList=malloc(sizeof(transactionNode));
+					receiver_temp->arrayOfUsers[0].transactionList=malloc(sizeof(transactionNode));
 					//receiver_temp->transactionList->withUser=
-					//receiver_temp->transactionList->next=NULL;
+					receiver_temp->arrayOfUsers[0].transactionList->tr=tr;
+					receiver_temp->arrayOfUsers[0].transactionList->next=NULL;
 					receiver_temp->next=NULL;
 
 					receiver_point_on_bucket=0;
@@ -632,9 +653,10 @@ printf("NULL receiverHashTable->numOfUsersPerBucket=%d\n",receiverHashTable->num
 					receiver_temp->last_entry++;
 					int lentry=receiver_temp->last_entry;
 					receiver_temp->arrayOfUsers[lentry].users=findUser(wallets,tr->receiverWalletID);
-					//receiver_temp->transactionList=malloc(sizeof(transactionNode));
+					receiver_temp->arrayOfUsers[lentry].transactionList=malloc(sizeof(transactionNode));
 					//receiver_temp->transactionList->withUser=
-					//receiver_temp->transactionList->next=NULL;
+					receiver_temp->arrayOfUsers[lentry].transactionList->tr=tr;
+					receiver_temp->arrayOfUsers[lentry].transactionList->next=NULL;
 
 					receiver_point_on_bucket=lentry;
 				}

@@ -268,7 +268,19 @@ for(int i=0;i<bitCoins->size;i++){
 				printf("RANGE %d:%d %d-%d-%d   %d:%d %d-%d-%d\n",time1.hour,time1.minutes,date1.day,date1.month,date1.year,time2.hour,time2.minutes,date2.day,date2.month,date2.year);
 			}
 			else{
-				
+				//NA TO BALW SE MIA FUNCTION
+				bucketNode *receiver_temp;
+				int receiver_point_on_bucket;
+				transactionNode *temp;
+				int offset=hash(walletID,arguments->receiverHashtableNumOfEntries);//EDW MIA WHILE OPOU 8A PERNAEI TO TRANSACTION LIST
+				//receiverHashTable->buckets[offset]->
+				checkIfUserIsAlreadyInHashTable(receiverHashTable,offset,walletID,&receiver_temp,&receiver_point_on_bucket);
+				temp=receiver_temp->arrayOfUsers[receiver_point_on_bucket].transactionList;
+				printf("AAAAAAA\n");
+				while(temp!=NULL){
+					printf("%s %s %s %d %d-%d-%d %d:%d\n",temp->tr->transactionID,temp->tr->senderWalletID,temp->tr->receiverWalletID,temp->tr->value,temp->tr->date->day,temp->tr->date->month,temp->tr->date->year,temp->tr->time->hour,temp->tr->time->minutes);
+					temp=temp->next;
+				}
 			}
 		}
 		else if(strcmp(command,"findPayments")==0){
@@ -377,7 +389,19 @@ for(int i=0;i<bitCoins->size;i++){
 				printf("RANGE %d:%d %d-%d-%d   %d:%d %d-%d-%d\n",time1.hour,time1.minutes,date1.day,date1.month,date1.year,time2.hour,time2.minutes,date2.day,date2.month,date2.year);
 			}
 			else{
-				
+				//NA TO BALW SE MIA FUNCTION , ALLAGH STHS METABLHTES
+				bucketNode *receiver_temp;
+				int receiver_point_on_bucket;
+				transactionNode *temp;
+				int offset=hash(walletID,arguments->senderHashtableNumOfEntries);//EDW MIA WHILE OPOU 8A PERNAEI TO TRANSACTION LIST
+				//receiverHashTable->buckets[offset]->
+				checkIfUserIsAlreadyInHashTable(senderHashTable,offset,walletID,&receiver_temp,&receiver_point_on_bucket);
+				temp=receiver_temp->arrayOfUsers[receiver_point_on_bucket].transactionList;
+				printf("AAAAAAA\n");
+				while(temp!=NULL){
+					printf("%s %s %s %d %d-%d-%d %d:%d\n",temp->tr->transactionID,temp->tr->senderWalletID,temp->tr->receiverWalletID,temp->tr->value,temp->tr->date->day,temp->tr->date->month,temp->tr->date->year,temp->tr->time->hour,temp->tr->time->minutes);
+					temp=temp->next;
+				}
 			}
 		}
 		else if(strcmp(command,"walletStatus")==0){
@@ -428,6 +452,8 @@ for(int i=0;i<bitCoins->size;i++){
 			bitCoinID=malloc((i-start)*sizeof(char));
 			strncpy(bitCoinID,&(line[start]),i-start);
 			printf("bitCoinID=%s...\n",bitCoinID);
+
+			
 		}
 		else if(strcmp(command,"exit")==0){
 			printf("EXIT\n");

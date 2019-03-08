@@ -74,6 +74,8 @@ typedef struct bucketNode bucketNode;
 typedef struct bucketElement bucketElement;
 typedef struct transactionNode transactionNode;
 
+typedef struct transaction transaction;
+
 struct HashTable{
 	//exw to size apo ta arguments (to size tou hash table)
 	int numOfUsersPerBucket;
@@ -94,13 +96,13 @@ struct bucketElement{
 };
 
 struct transactionNode{
-	usersBitCoinsNode *withUser;//me poion ekane thn sunalagh , eite tou edwse eite tou phre bitcoins, ousiastika einai o deikths sto dentro
-	//MALLON PREPEI NA BALW EDW NA FILAW KAPWS KAI TO TRANSACTION , MPORW ME DEIKTH OPWS KAI BUCKETS
+	usersBitCoinsNode *withUser;//me poion ekane thn sunalagh , eite tou edwse eite tou phre bitcoins, ousiastika einai o deikths sto dentro ,MPOREI NA MHN XREIAZETAI MIAS KAI TO FILAW STO tr
+	transaction *tr;//MALLON PREPEI NA BALW EDW NA FILAW KAPWS KAI TO TRANSACTION , MPORW ME DEIKTH OPWS KAI BUCKETS
 	transactionNode *next;
 };
 
 typedef struct arrayOfTransactions arrayOfTransactions;
-typedef struct transaction transaction;//endiktikh domh ws na dw ti paizei me to arxeio transactionsFile
+//typedef struct transaction transaction;//endiktikh domh ws na dw ti paizei me to arxeio transactionsFile
 typedef struct struct_date struct_date;
 typedef struct struct_time struct_time;
 struct arrayOfTransactions{
