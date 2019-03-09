@@ -319,6 +319,7 @@ int takeData_TransactionsFile(bitCoinIdArray *bitCoins,struct_wallets *wallets,H
 	int p=0;
 	//int paron_tr=0;
 	while(string[p]!=0){//8ELEI DIOR8WSH
+		/*
 /////////////////////////
 		printf("AAAAAAAAAAAAAAAAA\n");
 		if((*ListOfTransactions)->start==NULL){
@@ -334,7 +335,7 @@ int takeData_TransactionsFile(bitCoinIdArray *bitCoins,struct_wallets *wallets,H
 		printf("BBBBBBBBB\n");
 /////////////////////////
 
-
+		
 		while(string[p]==' ' || string[p]=='\t' || string[p]=='\n'){//pernaw ta kena
 			p++;
 		}
@@ -436,14 +437,14 @@ int takeData_TransactionsFile(bitCoinIdArray *bitCoins,struct_wallets *wallets,H
 		if(findUser(wallets,(*ListOfTransactions)->end->senderWalletID)==NULL || findUser(wallets,(*ListOfTransactions)->end->receiverWalletID)==NULL){//EDW TERMATIZEI TO PROGRAMMA???
 			printf("\n\nSender or Receiver NOT FOUND!!!\n\n\n");
 			return -1;
-		}
+		}*/
 		//MPOREI NA 8ELEI KAI ELEGXO MHN KAPOIA SYNALAGH EINAI META THN TWRINH WRA
 
 
 
 		//paron_tr++;
 
-		/*
+		
 		transaction *tr;
 		tr=malloc(sizeof(transaction));
 
@@ -533,13 +534,42 @@ int takeData_TransactionsFile(bitCoinIdArray *bitCoins,struct_wallets *wallets,H
 		}
 
 		printf("%s %s %s %d %d-%d-%d %d:%d\n",tr->transactionID,tr->senderWalletID,tr->receiverWalletID,tr->value,tr->date->day,tr->date->month,tr->date->year,tr->time->hour,tr->time->minutes);
-		*/
+		if(max_tr_id<strlen(tr->transactionID)){
+			max_tr_id=strlen(tr->transactionID);
+		}
+
+		if(checkForDuplicateTransactionID((*ListOfTransactions))==-1){
+			printf("\n\nDuplicateTransactionID!!!\n\n\n");
+			return -1;
+		}
+		if(strcmp(tr->senderWalletID,tr->receiverWalletID)==0){//elegxw an o sender kai o receiver einai o idios , EDW TERMATIZEI TO PROGRAMMA???
+			printf("\n\nSender=Receiver!!!\n\n\n");
+			return -1;
+		}
+		if(findUser(wallets,tr->senderWalletID)==NULL || findUser(wallets,tr->receiverWalletID)==NULL){//EDW TERMATIZEI TO PROGRAMMA???
+			printf("\n\nSender or Receiver NOT FOUND!!!\n\n\n");
+			return -1;
+		}
+		//MPOREI NA 8ELEI KAI ELEGXO MHN KAPOIA SYNALAGH EINAI META THN TWRINH WRA
 
 		//metaferw to paron transaction ston pinaka me ta transaction
 		//(*ArrayOfTransactions)->tr[paron_tr];
 
-		if(executeTransaction(bitCoins,wallets,(*senderHashTable),(*receiverHashTable),arguments,(*ListOfTransactions)->end)==-1){//mallon den xreiazetai if auth h sunarthsh na to bgalw !!!!!!!!!!!!!!!!!!!!!!!!!!!!
-			return -1;
+		if(executeTransaction(bitCoins,wallets,(*senderHashTable),(*receiverHashTable),arguments,tr)==0){//0 dld exei ektelestei me epitixia
+			/////////////////////////
+			printf("AAAAAAAAAAAAAAAAA\n");
+			if((*ListOfTransactions)->start==NULL){
+				(*ListOfTransactions)->start=tr;
+				(*ListOfTransactions)->start->next=NULL;
+				(*ListOfTransactions)->end=(*ListOfTransactions)->start;
+			}
+			else{
+				(*ListOfTransactions)->end->next=tr;				
+				(*ListOfTransactions)->end=(*ListOfTransactions)->end->next;
+				(*ListOfTransactions)->end->next=NULL;
+			}
+			printf("BBBBBBBBB\n");
+			/////////////////////////
 		}
 	}
 
@@ -549,9 +579,9 @@ int takeData_TransactionsFile(bitCoinIdArray *bitCoins,struct_wallets *wallets,H
 
 int executeTransaction(bitCoinIdArray *bitCoins,struct_wallets *wallets,HashTable *senderHashTable,HashTable *receiverHashTable,struct_arguments *arguments,transaction *tr){
 
-		if(checkIfSenderHasEnoughBalance(wallets,tr)==-1){
+		if(checkIfSenderHasEnoughBalance(wallets,tr)==-1){//mporei na mhn prepei na mpainei sthn lista me ta transactions
 			printf("NOT ENOUGHT BALANCE!!!\n");
-			return 0;
+			return -1;
 		}
 
 		//spaw to bitcoin , den 8a spaw to bitCoin , alla 8a phgainw sto wallet tou sender kai 8a spaw ton kombo apo to bitCoin pou exei
@@ -762,7 +792,7 @@ printf("NULL receiverHashTable->numOfUsersPerBucket=%d\n",receiverHashTable->num
 			deleteList_node(&(sender_temp->arrayOfUsers[sender_point_on_bucket].users->list));
 		}
 
-	return 1;
+	return 0;
 }
 
 int checkIfSenderHasEnoughBalance(struct_wallets *wallets,transaction *tr){

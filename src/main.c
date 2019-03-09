@@ -109,26 +109,41 @@ for(int i=0;i<bitCoins->size;i++){
 		printf("\n\n\nnext_tr_id=%d\n\n\n",next_tr_id);
 
 		if(strcmp(command,"requestTransaction")==0){
-/////////////////////////
-			printf("AAAAAAAAAAAAAAAAA\n");
-			if(ListOfTransactions->start==NULL){
-				ListOfTransactions->start=breakTransaction(line,i,strlen(line));
-				ListOfTransactions->start->next=NULL;
-				ListOfTransactions->end=ListOfTransactions->start;
+			transaction *tr;
+			tr=breakTransaction(line,i,strlen(line));
+			if(strcmp(tr->senderWalletID,tr->receiverWalletID)==0){//elegxw an o sender kai o receiver einai o idios , EDW TERMATIZEI TO PROGRAMMA???
+				printf("\n\nSender=Receiver!!!\n\n\n");
+				continue;
 			}
-			else{
-				ListOfTransactions->end->next=breakTransaction(line,i,strlen(line));
-				ListOfTransactions->end=ListOfTransactions->end->next;
-				ListOfTransactions->end->next=NULL;
+			if(findUser(wallets,tr->senderWalletID)==NULL || findUser(wallets,tr->receiverWalletID)==NULL){//EDW TERMATIZEI TO PROGRAMMA???
+				printf("\n\nSender or Receiver NOT FOUND!!!\n\n\n");
+				continue;
 			}
-			printf("BBBBBBBBB\n");
+			//MPOREI NA 8ELEI KAI ELEGXO MHN KAPOIA SYNALAGH EINAI META THN TWRINH WRA
+			
+			if(executeTransaction(bitCoins,wallets,senderHashTable,receiverHashTable,arguments,tr)==0){
+				/////////////////////////
+				printf("AAAAAAAAAAAAAAAAA\n");
+				if(ListOfTransactions->start==NULL){
+					ListOfTransactions->start=tr;
+					ListOfTransactions->start->next=NULL;
+					ListOfTransactions->end=ListOfTransactions->start;
+				}
+				else{
+					ListOfTransactions->end->next=tr;
+					ListOfTransactions->end=ListOfTransactions->end->next;
+					ListOfTransactions->end->next=NULL;
+				}
+				printf("BBBBBBBBB\n");
 
-			//https://stackoverflow.com/questions/9655202/how-to-convert-integer-to-string-in-c
-			ListOfTransactions->end->transactionID=malloc(countDigits(next_tr_id)*sizeof(char));
-			sprintf(ListOfTransactions->end->transactionID, "%d", next_tr_id);
-			next_tr_id++;
-			printf("ListOfTransactions->end->transactionID=%s\n",ListOfTransactions->end->transactionID);
-/////////////////////////
+				//https://stackoverflow.com/questions/9655202/how-to-convert-integer-to-string-in-c
+				ListOfTransactions->end->transactionID=malloc(countDigits(next_tr_id)*sizeof(char));
+				sprintf(ListOfTransactions->end->transactionID, "%d", next_tr_id);
+				next_tr_id++;
+				printf("ListOfTransactions->end->transactionID=%s..\n",ListOfTransactions->end->transactionID);
+				/////////////////////////
+			}
+
 			/*transaction *tr;
 			//tr=malloc(sizeof(transaction));
 			//https://stackoverflow.com/questions/9655202/how-to-convert-integer-to-string-in-c
@@ -140,7 +155,7 @@ for(int i=0;i<bitCoins->size;i++){
 
 			
 
-			executeTransaction(bitCoins,wallets,senderHashTable,receiverHashTable,arguments,ListOfTransactions->end);
+			//executeTransaction(bitCoins,wallets,senderHashTable,receiverHashTable,arguments,ListOfTransactions->end);
 		}
 		else if(strcmp(command,"requestTransactions")==0){
 			transaction *tr;
