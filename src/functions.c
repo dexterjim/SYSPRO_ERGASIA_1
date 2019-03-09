@@ -255,8 +255,8 @@ void deleteList_node(usersBitCoinsNode **list){//delete ton prwto kombo
 
 /////////////////////////
 
-int takeData_TransactionsFile(bitCoinIdArray *bitCoins,struct_wallets *wallets,HashTable **senderHashTable,HashTable **receiverHashTable,arrayOfTransactions **ArrayOfTransactions,struct_arguments *arguments){
-	int i;
+int takeData_TransactionsFile(bitCoinIdArray *bitCoins,struct_wallets *wallets,HashTable **senderHashTable,HashTable **receiverHashTable,listOfTransactions **ListOfTransactions,struct_arguments *arguments){
+	int i,max_tr_id=0;
 	//check if file exists
 	//https://stackoverflow.com/questions/230062/whats-the-best-way-to-check-if-a-file-exists-in-c
 	if(access(arguments->transactionsFile,F_OK)==-1){
@@ -279,18 +279,20 @@ int takeData_TransactionsFile(bitCoinIdArray *bitCoins,struct_wallets *wallets,H
 	string[fsize]=0;//teleiwnei se allagh grammhs ,mporei na 8elei allagh
 	printf("\n\nstring=%s...\n",string);
 	
-	//ftiaxnw ton ArrayOfTransactions
-	(*ArrayOfTransactions)=malloc(sizeof(arrayOfTransactions));
+	//ftiaxnw ton ListOfTransactions
+	(*ListOfTransactions)=malloc(sizeof(listOfTransactions));
+	(*ListOfTransactions)->start=NULL;
+	(*ListOfTransactions)->end=NULL;
 
 	//blepw posa transaction exw , metraw ta ':' , na to tsekarw pali
-	(*ArrayOfTransactions)->size=0;
+	/*(*ArrayOfTransactions)->size=0;
 	for(i=0;i<fsize;i++){
 		if(string[i]==':'){
 			(*ArrayOfTransactions)->size++;
 		}
 	}
 
-	(*ArrayOfTransactions)->tr=malloc((*ArrayOfTransactions)->size*sizeof(transaction));
+	(*ArrayOfTransactions)->tr=malloc((*ArrayOfTransactions)->size*sizeof(transaction));*/
 
 	//MPOREI TA HASH NA PREPEI NA TA KANW AFOU ELEKSW OTI EINAI VALID TA ARXEIA
 
@@ -315,8 +317,24 @@ int takeData_TransactionsFile(bitCoinIdArray *bitCoins,struct_wallets *wallets,H
 
 	//diabazw ta transactions
 	int p=0;
-	int paron_tr=0;
+	//int paron_tr=0;
 	while(string[p]!=0){//8ELEI DIOR8WSH
+/////////////////////////
+		printf("AAAAAAAAAAAAAAAAA\n");
+		if((*ListOfTransactions)->start==NULL){
+			(*ListOfTransactions)->start=malloc(sizeof(transaction));
+			(*ListOfTransactions)->start->next=NULL;
+			(*ListOfTransactions)->end=(*ListOfTransactions)->start;
+		}
+		else{
+			(*ListOfTransactions)->end->next=malloc(sizeof(transaction));
+			(*ListOfTransactions)->end=(*ListOfTransactions)->end->next;
+			(*ListOfTransactions)->end->next=NULL;
+		}
+		printf("BBBBBBBBB\n");
+/////////////////////////
+
+
 		while(string[p]==' ' || string[p]=='\t' || string[p]=='\n'){//pernaw ta kena
 			p++;
 		}
@@ -324,9 +342,9 @@ int takeData_TransactionsFile(bitCoinIdArray *bitCoins,struct_wallets *wallets,H
 		while(string[p]!=' ' && string[p]!='\t'){//diabazw transactionID
 			p++;
 		}
-		(*ArrayOfTransactions)->tr[paron_tr].transactionID=malloc((p-start+1)*sizeof(char));
-		strncpy((*ArrayOfTransactions)->tr[paron_tr].transactionID,&(string[start]),p-start);
-		(*ArrayOfTransactions)->tr[paron_tr].transactionID[p-start]=0;
+		(*ListOfTransactions)->end->transactionID=malloc((p-start+1)*sizeof(char));
+		strncpy((*ListOfTransactions)->end->transactionID,&(string[start]),p-start);
+		(*ListOfTransactions)->end->transactionID[p-start]=0;
 
 		while(string[p]==' ' || string[p]=='\t' || string[p]=='\n'){//pernaw ta kena
 			p++;
@@ -335,9 +353,9 @@ int takeData_TransactionsFile(bitCoinIdArray *bitCoins,struct_wallets *wallets,H
 		while(string[p]!=' ' && string[p]!='\t'){//diabazw senderWalletID
 			p++;
 		}
-		(*ArrayOfTransactions)->tr[paron_tr].senderWalletID=malloc((p-start+1)*sizeof(char));
-		strncpy((*ArrayOfTransactions)->tr[paron_tr].senderWalletID,&(string[start]),p-start);
-		(*ArrayOfTransactions)->tr[paron_tr].senderWalletID[p-start]=0;
+		(*ListOfTransactions)->end->senderWalletID=malloc((p-start+1)*sizeof(char));
+		strncpy((*ListOfTransactions)->end->senderWalletID,&(string[start]),p-start);
+		(*ListOfTransactions)->end->senderWalletID[p-start]=0;
 
 		while(string[p]==' ' || string[p]=='\t' || string[p]=='\n'){//pernaw ta kena
 			p++;
@@ -346,54 +364,54 @@ int takeData_TransactionsFile(bitCoinIdArray *bitCoins,struct_wallets *wallets,H
 		while(string[p]!=' ' && string[p]!='\t'){//diabazw receiverWalletID
 			p++;
 		}
-		(*ArrayOfTransactions)->tr[paron_tr].receiverWalletID=malloc((p-start+1)*sizeof(char));
-		strncpy((*ArrayOfTransactions)->tr[paron_tr].receiverWalletID,&(string[start]),p-start);
-		(*ArrayOfTransactions)->tr[paron_tr].receiverWalletID[p-start]=0;
+		(*ListOfTransactions)->end->receiverWalletID=malloc((p-start+1)*sizeof(char));
+		strncpy((*ListOfTransactions)->end->receiverWalletID,&(string[start]),p-start);
+		(*ListOfTransactions)->end->receiverWalletID[p-start]=0;
 
 		while(string[p]==' ' || string[p]=='\t' || string[p]=='\n'){//pernaw ta kena
 			p++;
 		}
-		(*ArrayOfTransactions)->tr[paron_tr].value=0;
+		(*ListOfTransactions)->end->value=0;
 		while(string[p]!=' ' && string[p]!='\t'){//diabazw receiverWalletID
-			(*ArrayOfTransactions)->tr[paron_tr].value=(*ArrayOfTransactions)->tr[paron_tr].value*10+string[p]-'0';
+			(*ListOfTransactions)->end->value=(*ListOfTransactions)->end->value*10+string[p]-'0';
 			p++;
 		}
 
 		while(string[p]==' ' || string[p]=='\t' || string[p]=='\n'){//pernaw ta kena
 			p++;
 		}
-		(*ArrayOfTransactions)->tr[paron_tr].date=malloc(sizeof(struct_date));
-		(*ArrayOfTransactions)->tr[paron_tr].date->day=0;
+		(*ListOfTransactions)->end->date=malloc(sizeof(struct_date));
+		(*ListOfTransactions)->end->date->day=0;
 		while(string[p]!='-'){//diabazw receiverWalletID
-			(*ArrayOfTransactions)->tr[paron_tr].date->day=(*ArrayOfTransactions)->tr[paron_tr].date->day*10+string[p]-'0';
+			(*ListOfTransactions)->end->date->day=(*ListOfTransactions)->end->date->day*10+string[p]-'0';
 			p++;
 		}
 		p++;
-		(*ArrayOfTransactions)->tr[paron_tr].date->month=0;
+		(*ListOfTransactions)->end->date->month=0;
 		while(string[p]!='-'){//diabazw receiverWalletID
-			(*ArrayOfTransactions)->tr[paron_tr].date->month=(*ArrayOfTransactions)->tr[paron_tr].date->month*10+string[p]-'0';
+			(*ListOfTransactions)->end->date->month=(*ListOfTransactions)->end->date->month*10+string[p]-'0';
 			p++;
 		}
 		p++;
-		(*ArrayOfTransactions)->tr[paron_tr].date->year=0;
+		(*ListOfTransactions)->end->date->year=0;
 		while(string[p]!=' ' && string[p]!='\t'){//diabazw receiverWalletID
-			(*ArrayOfTransactions)->tr[paron_tr].date->year=(*ArrayOfTransactions)->tr[paron_tr].date->year*10+string[p]-'0';
+			(*ListOfTransactions)->end->date->year=(*ListOfTransactions)->end->date->year*10+string[p]-'0';
 			p++;
 		}
 
 		while(string[p]==' ' || string[p]=='\t' || string[p]=='\n'){//pernaw ta kena
 			p++;
 		}
-		(*ArrayOfTransactions)->tr[paron_tr].time=malloc(sizeof(struct_time));
-		(*ArrayOfTransactions)->tr[paron_tr].time->hour=0;
+		(*ListOfTransactions)->end->time=malloc(sizeof(struct_time));
+		(*ListOfTransactions)->end->time->hour=0;
 		while(string[p]!=':'){//diabazw receiverWalletID
-			(*ArrayOfTransactions)->tr[paron_tr].time->hour=(*ArrayOfTransactions)->tr[paron_tr].time->hour*10+string[p]-'0';
+			(*ListOfTransactions)->end->time->hour=(*ListOfTransactions)->end->time->hour*10+string[p]-'0';
 			p++;
 		}
 		p++;
-		(*ArrayOfTransactions)->tr[paron_tr].time->minutes=0;
+		(*ListOfTransactions)->end->time->minutes=0;
 		while(string[p]!=' ' && string[p]!='\t' && string[p]!='\n'){//diabazw receiverWalletID
-			(*ArrayOfTransactions)->tr[paron_tr].time->minutes=(*ArrayOfTransactions)->tr[paron_tr].time->minutes*10+string[p]-'0';
+			(*ListOfTransactions)->end->time->minutes=(*ListOfTransactions)->end->time->minutes*10+string[p]-'0';
 			p++;
 		}
 
@@ -401,14 +419,29 @@ int takeData_TransactionsFile(bitCoinIdArray *bitCoins,struct_wallets *wallets,H
 			p++;
 		}
 
-		//printf("%s %s %s %d %d-%d-%d %d:%d\n",(*ArrayOfTransactions)->tr[paron_tr].transactionID,(*ArrayOfTransactions)->tr[paron_tr].senderWalletID,(*ArrayOfTransactions)->tr[paron_tr].receiverWalletID,(*ArrayOfTransactions)->tr[paron_tr].value,(*ArrayOfTransactions)->tr[paron_tr].date->day,(*ArrayOfTransactions)->tr[paron_tr].date->month,(*ArrayOfTransactions)->tr[paron_tr].date->year,(*ArrayOfTransactions)->tr[paron_tr].time->hour,(*ArrayOfTransactions)->tr[paron_tr].time->minutes);
+		printf("ABC %s %s %s %d %d-%d-%d %d:%d\n",(*ListOfTransactions)->end->transactionID,(*ListOfTransactions)->end->senderWalletID,(*ListOfTransactions)->end->receiverWalletID,(*ListOfTransactions)->end->value,(*ListOfTransactions)->end->date->day,(*ListOfTransactions)->end->date->month,(*ListOfTransactions)->end->date->year,(*ListOfTransactions)->end->time->hour,(*ListOfTransactions)->end->time->minutes);
 
-		if(checkForDuplicateTransactionID((*ArrayOfTransactions),paron_tr)==-1){
+		if(max_tr_id<strlen((*ListOfTransactions)->end->transactionID)){
+			max_tr_id=strlen((*ListOfTransactions)->end->transactionID);
+		}
+
+		if(checkForDuplicateTransactionID((*ListOfTransactions))==-1){
 			printf("\n\nDuplicateTransactionID!!!\n\n\n");
 			return -1;
 		}
+		if(strcmp((*ListOfTransactions)->end->senderWalletID,(*ListOfTransactions)->end->receiverWalletID)==0){//elegxw an o sender kai o receiver einai o idios , EDW TERMATIZEI TO PROGRAMMA???
+			printf("\n\nSender=Receiver!!!\n\n\n");
+			return -1;
+		}
+		if(findUser(wallets,(*ListOfTransactions)->end->senderWalletID)==NULL || findUser(wallets,(*ListOfTransactions)->end->receiverWalletID)==NULL){//EDW TERMATIZEI TO PROGRAMMA???
+			printf("\n\nSender or Receiver NOT FOUND!!!\n\n\n");
+			return -1;
+		}
+		//MPOREI NA 8ELEI KAI ELEGXO MHN KAPOIA SYNALAGH EINAI META THN TWRINH WRA
 
-		paron_tr++;
+
+
+		//paron_tr++;
 
 		/*
 		transaction *tr;
@@ -505,12 +538,13 @@ int takeData_TransactionsFile(bitCoinIdArray *bitCoins,struct_wallets *wallets,H
 		//metaferw to paron transaction ston pinaka me ta transaction
 		//(*ArrayOfTransactions)->tr[paron_tr];
 
-		if(executeTransaction(bitCoins,wallets,(*senderHashTable),(*receiverHashTable),arguments,&((*ArrayOfTransactions)->tr[paron_tr-1]))==-1){//mallon den xreiazetai if auth h sunarthsh na to bgalw !!!!!!!!!!!!!!!!!!!!!!!!!!!!
+		if(executeTransaction(bitCoins,wallets,(*senderHashTable),(*receiverHashTable),arguments,(*ListOfTransactions)->end)==-1){//mallon den xreiazetai if auth h sunarthsh na to bgalw !!!!!!!!!!!!!!!!!!!!!!!!!!!!
 			return -1;
 		}
 	}
 
-	return 0;
+	//return 0;
+	return max_tr_id;//kanw return to mhkos tou pio megalou id , me strlen
 }
 
 int executeTransaction(bitCoinIdArray *bitCoins,struct_wallets *wallets,HashTable *senderHashTable,HashTable *receiverHashTable,struct_arguments *arguments,transaction *tr){
@@ -864,12 +898,19 @@ transaction *breakTransaction(char *string,int begin,int end){
 		}*/
 }
 
-int checkForDuplicateTransactionID(arrayOfTransactions *aot,int point){//to point einai pou balame to teleutaio stoixeio
-	for(int i=0;i<point;i++){
-		if(strcmp(aot->tr[i].transactionID,aot->tr[point].transactionID)==0){
+int checkForDuplicateTransactionID(listOfTransactions *lot){//to point einai pou balame to teleutaio stoixeio
+	if(lot->start==lot->end){
+		printf("PRWTO STHN LISTA\n");
+		return 0;//pali, an einai mono 1 den to elegxw
+	}
+	transaction *temp;
+	temp=lot->start;
+	while(temp->next!=NULL){
+		if(strcmp(lot->end->transactionID,temp->transactionID)==0){
 				//printf("\n\nDUPLICAT USERNAME!!!\n\n\n");
 				return -1;
 		}
+		temp=temp->next;
 	}
 	return 0;
 }
@@ -914,4 +955,13 @@ int findUnspent(bitCoinIdTreeNode *node){
 	else{
 		return node->value;
 	}
+}
+
+int countDigits(int x){
+	int c=0;
+	while(x>0){
+		c++;
+		x=x/10;
+	}
+	return c;
 }

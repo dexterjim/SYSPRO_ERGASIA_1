@@ -38,15 +38,31 @@ for(int i=0;i<bitCoins->size;i++){
 }
 ////
 	HashTable *senderHashTable,*receiverHashTable;
-	arrayOfTransactions *ArrayOfTransactions;
-	if(takeData_TransactionsFile(bitCoins,wallets,&senderHashTable,&receiverHashTable,&ArrayOfTransactions,arguments)==-1){
+	//arrayOfTransactions *ArrayOfTransactions;
+	listOfTransactions *ListOfTransactions;
+	int max_tr_id;
+	int next_tr_id=1;
+	max_tr_id=takeData_TransactionsFile(bitCoins,wallets,&senderHashTable,&receiverHashTable,&ListOfTransactions,arguments);
+	//if(takeData_TransactionsFile(bitCoins,wallets,&senderHashTable,&receiverHashTable,&ListOfTransactions,arguments)==-1){
+	if(max_tr_id==-1){
 		return 3;
 	}
 
+	while(max_tr_id>0){//dld ta nea id 8a arxizoun apo to 10^max_tr_id
+		next_tr_id=next_tr_id*10;
+		max_tr_id--;
+	}
+
 //////
-printf("TRANSACTION from file with size=%d\n",ArrayOfTransactions->size);
+/*printf("TRANSACTION from file with size=%d\n",ArrayOfTransactions->size);
 for(int i=0;i<ArrayOfTransactions->size;i++){
 	printf("%s %s %s %d %d-%d-%d %d:%d\n",ArrayOfTransactions->tr[i].transactionID,ArrayOfTransactions->tr[i].senderWalletID,ArrayOfTransactions->tr[i].receiverWalletID,ArrayOfTransactions->tr[i].value,ArrayOfTransactions->tr[i].date->day,ArrayOfTransactions->tr[i].date->month,ArrayOfTransactions->tr[i].date->year,ArrayOfTransactions->tr[i].time->hour,ArrayOfTransactions->tr[i].time->minutes);
+}*/
+transaction *temptr;
+temptr=ListOfTransactions->start;
+while(temptr!=NULL){
+	printf("%s %s %s %d %d-%d-%d %d:%d\n",temptr->transactionID,temptr->senderWalletID,temptr->receiverWalletID,temptr->value,temptr->date->day,temptr->date->month,temptr->date->year,temptr->time->hour,temptr->time->minutes);
+	temptr=temptr->next;
 }
 
 
@@ -90,13 +106,41 @@ for(int i=0;i<bitCoins->size;i++){
 		}
 
 		printf("line=%s\ncommand=%s\n",line,command);
+		printf("\n\n\nnext_tr_id=%d\n\n\n",next_tr_id);
 
 		if(strcmp(command,"requestTransaction")==0){
-			transaction *tr;
-			//tr=malloc(sizeof(transaction));
-			tr=breakTransaction(line,i,strlen(line));
+/////////////////////////
+			printf("AAAAAAAAAAAAAAAAA\n");
+			if(ListOfTransactions->start==NULL){
+				ListOfTransactions->start=breakTransaction(line,i,strlen(line));
+				ListOfTransactions->start->next=NULL;
+				ListOfTransactions->end=ListOfTransactions->start;
+			}
+			else{
+				ListOfTransactions->end->next=breakTransaction(line,i,strlen(line));
+				ListOfTransactions->end=ListOfTransactions->end->next;
+				ListOfTransactions->end->next=NULL;
+			}
+			printf("BBBBBBBBB\n");
 
-			executeTransaction(bitCoins,wallets,senderHashTable,receiverHashTable,arguments,tr);
+			//https://stackoverflow.com/questions/9655202/how-to-convert-integer-to-string-in-c
+			ListOfTransactions->end->transactionID=malloc(countDigits(next_tr_id)*sizeof(char));
+			sprintf(ListOfTransactions->end->transactionID, "%d", next_tr_id);
+			next_tr_id++;
+			printf("ListOfTransactions->end->transactionID=%s\n",ListOfTransactions->end->transactionID);
+/////////////////////////
+			/*transaction *tr;
+			//tr=malloc(sizeof(transaction));
+			//https://stackoverflow.com/questions/9655202/how-to-convert-integer-to-string-in-c
+			tr=breakTransaction(line,i,strlen(line));
+			tr->transactionID=malloc(countDigits(next_tr_id)*sizeof(char));
+			sprintf(tr->transactionID, "%d", next_tr_id);
+			next_tr_id++;
+			printf("tr->transactionID=%s\n",tr->transactionID);*/
+
+			
+
+			executeTransaction(bitCoins,wallets,senderHashTable,receiverHashTable,arguments,ListOfTransactions->end);
 		}
 		else if(strcmp(command,"requestTransactions")==0){
 			transaction *tr;

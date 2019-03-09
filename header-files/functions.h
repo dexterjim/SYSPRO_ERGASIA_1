@@ -101,14 +101,22 @@ struct transactionNode{
 	transactionNode *next;
 };
 
-typedef struct arrayOfTransactions arrayOfTransactions;
+//typedef struct arrayOfTransactions arrayOfTransactions;
+typedef struct listOfTransactions listOfTransactions;
 //typedef struct transaction transaction;//endiktikh domh ws na dw ti paizei me to arxeio transactionsFile
 typedef struct struct_date struct_date;
 typedef struct struct_time struct_time;
+/*
 struct arrayOfTransactions{
 	int size;
 	transaction *tr;
 };
+*/
+struct listOfTransactions{
+	transaction *start;
+	transaction *end;
+};
+
 struct transaction{
 	char *transactionID;
 	char *senderWalletID;
@@ -116,6 +124,7 @@ struct transaction{
 	int value;
 	struct_date *date;
 	struct_time *time;
+	transaction *next;//
 };
 struct struct_date{
 	int day;
@@ -127,17 +136,17 @@ struct struct_time{
 	int minutes;
 };
 
-int takeData_TransactionsFile(bitCoinIdArray *bitCoins,struct_wallets *wallets,HashTable **senderHashTable,HashTable **receiverHashTable,arrayOfTransactions **ArrayOfTransactions,struct_arguments *arguments);
+int takeData_TransactionsFile(bitCoinIdArray *bitCoins,struct_wallets *wallets,HashTable **senderHashTable,HashTable **receiverHashTable,listOfTransactions **ListOfTransactions,struct_arguments *arguments);
 int executeTransaction(bitCoinIdArray *bitCoins,struct_wallets *wallets,HashTable *senderHashTable,HashTable *receiverHashTable,struct_arguments *arguments,transaction *tr);
 int checkIfSenderHasEnoughBalance(struct_wallets *wallets,transaction *tr);
 oneWallet *findUser(struct_wallets *wallets,char *str);
 onebitCoinId *findBitCoin(bitCoinIdArray *bitCoins,char *str);
 int hash(char *str,int mod);
 transaction *breakTransaction(char *string,int begin,int end);
-int checkForDuplicateTransactionID(arrayOfTransactions *aot,int point);
+int checkForDuplicateTransactionID(listOfTransactions *lot);
 int checkIfUserIsAlreadyInHashTable(HashTable *ht,int offset,char *str,bucketNode **temp,int *point_on_bucket);
 void printTree(bitCoinIdTreeNode *node);
 int findUnspent(bitCoinIdTreeNode *node);
-
+int countDigits(int x);
 
 
