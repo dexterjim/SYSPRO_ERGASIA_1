@@ -154,3 +154,4 @@ int findUnspent(bitCoinIdTreeNode *node);
 int countDigits(int x);
 
 void printTransactionHistory(bitCoinIdTreeNode *node);
+int check_date(transaction *tr,struct_time time1,struct_time time2,struct_date date1,struct_date date2,int flag_time,int flag_date);

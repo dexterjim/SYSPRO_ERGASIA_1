@@ -356,13 +356,28 @@ for(int i=0;i<bitCoins->size;i++){
 			printf("walletID=%s...\n",walletID);
 
 			start=i;
-			int flag=0;
+			int flag=0,flag_time=0,flag_date=0;
 			while(i<strlen(line)){//elegxo an uparxei tpt allo
 				if(line[i]!=' ' && line[i]!='\t' && line[i]!='\0' && line[i]!='\n'){
 					flag=1;
-					break;
+					//break;
 				}
+				if(line[i]==':'){
+					flag_time++;
+				}
+				if(line[i]=='-'){
+					flag_date++;
+				}
+
 				i++;
+			}
+			if(flag_time!=2 && flag_time!=0){
+				printf("WRONG FORMAT!!!\n");
+				continue;
+			}
+			if(flag_date!=4 && flag_date!=0){
+				printf("WRONG FORMAT!!!\n");
+				continue;
 			}
 			if(flag==1){//uparxei euros xronou
 				struct_date date1,date2;
@@ -370,82 +385,125 @@ for(int i=0;i<bitCoins->size;i++){
 
 				i=start;
 
-				while(line[i]==' ' || line[i]=='\t' || line[i]=='\0'){//an sthn arxh exei kena
-					i++;
-				}
-				time1.hour=0;
-				while(line[i]!=':'){
-					time1.hour=time1.hour*10+line[i]-'0';
-					i++;
-				}
-				i++;
-				time1.minutes=0;
-				while(line[i]!=' ' && line[i]!='\t' && line[i]!='\0'){
-					time1.minutes=time1.minutes*10+line[i]-'0';
-					i++;
-				}
+				///////////
+				if(flag_time==2){
 
-				while(line[i]==' ' || line[i]=='\t' || line[i]=='\0'){//an sthn arxh exei kena
+					while(line[i]==' ' || line[i]=='\t' || line[i]=='\0'){//an sthn arxh exei kena
+						i++;
+					}
+					time1.hour=0;
+					while(line[i]!=':'){
+						time1.hour=time1.hour*10+line[i]-'0';
+						i++;
+					}
 					i++;
-				}
+					time1.minutes=0;
+					while(line[i]!=' ' && line[i]!='\t' && line[i]!='\0'){
+						time1.minutes=time1.minutes*10+line[i]-'0';
+						i++;
+					}
 
-				date1.day=0;
-				while(line[i]!='-'){//an sthn arxh exei kena
-					date1.day=date1.day*10+line[i]-'0';
-					i++;
 				}
-				i++;
-				date1.month=0;
-				while(line[i]!='-'){//an sthn arxh exei kena
-					date1.month=date1.month*10+line[i]-'0';
-					i++;
-				}
-				i++;
-				date1.year=0;
-				while(line[i]!=' ' && line[i]!='\t' && line[i]!='\0'){//an sthn arxh exei kena
-					date1.year=date1.year*10+line[i]-'0';
-					i++;
-				}
+				////////////
+				if(flag_date==4){
 
+					while(line[i]==' ' || line[i]=='\t' || line[i]=='\0'){//an sthn arxh exei kena
+						i++;
+					}
+
+					date1.day=0;
+					while(line[i]!='-'){//an sthn arxh exei kena
+						date1.day=date1.day*10+line[i]-'0';
+						i++;
+					}
+					i++;
+					date1.month=0;
+					while(line[i]!='-'){//an sthn arxh exei kena
+						date1.month=date1.month*10+line[i]-'0';
+						i++;
+					}
+					i++;
+					date1.year=0;
+					while(line[i]!=' ' && line[i]!='\t' && line[i]!='\0'){//an sthn arxh exei kena
+						date1.year=date1.year*10+line[i]-'0';
+						i++;
+					}
+
+				}
 				//gia thn deuterh hmerominia
 
-				while(line[i]==' ' || line[i]=='\t' || line[i]=='\0'){//an sthn arxh exei kena
+				///////////
+				if(flag_time==2){
+
+					while(line[i]==' ' || line[i]=='\t' || line[i]=='\0'){//an sthn arxh exei kena
+						i++;
+					}
+					time2.hour=0;
+					while(line[i]!=':'){//an sthn arxh exei kena
+						time2.hour=time2.hour*10+line[i]-'0';
+						i++;
+					}
 					i++;
+					time2.minutes=0;
+					while(line[i]!=' ' && line[i]!='\t' && line[i]!='\0'){//an sthn arxh exei kena
+						time2.minutes=time2.minutes*10+line[i]-'0';
+						i++;
+					}
+
+
 				}
-				time2.hour=0;
-				while(line[i]!=':'){//an sthn arxh exei kena
-					time2.hour=time2.hour*10+line[i]-'0';
+				////////////
+				if(flag_date==4){
+
+					while(line[i]==' ' || line[i]=='\t' || line[i]=='\0'){//an sthn arxh exei kena
+						i++;
+					}
+
+					date2.day=0;
+					while(line[i]!='-'){//an sthn arxh exei kena
+						date2.day=date2.day*10+line[i]-'0';
+						i++;
+					}
 					i++;
-				}
-				i++;
-				time2.minutes=0;
-				while(line[i]!=' ' && line[i]!='\t' && line[i]!='\0'){//an sthn arxh exei kena
-					time2.minutes=time2.minutes*10+line[i]-'0';
+					date2.month=0;
+					while(line[i]!='-'){//an sthn arxh exei kena
+						date2.month=date2.month*10+line[i]-'0';
+						i++;
+					}
 					i++;
+					date2.year=0;
+					while(line[i]!=' ' && line[i]!='\t' && line[i]!='\0'){//an sthn arxh exei kena
+						date2.year=date2.year*10+line[i]-'0';
+						i++;
+					}
+
 				}
 
-				while(line[i]==' ' || line[i]=='\t' || line[i]=='\0'){//an sthn arxh exei kena
-					i++;
+				if(flag_time==2 && flag_date==4){
+					printf("RANGE %d:%d %d-%d-%d   %d:%d %d-%d-%d\n",time1.hour,time1.minutes,date1.day,date1.month,date1.year,time2.hour,time2.minutes,date2.day,date2.month,date2.year);
+				}
+				else if(flag_date==4){
+					printf("RANGE %d-%d-%d %d-%d-%d\n",date1.day,date1.month,date1.year,date2.day,date2.month,date2.year);
+				}
+				else{
+					printf("RANGE %d:%d %d:%d\n",time1.hour,time1.minutes,time2.hour,time2.minutes);
 				}
 
-				date2.day=0;
-				while(line[i]!='-'){//an sthn arxh exei kena
-					date2.day=date2.day*10+line[i]-'0';
-					i++;
+				//NA TO BALW SE MIA FUNCTION , ALLAGH STHS METABLHTES
+				bucketNode *receiver_temp;
+				int receiver_point_on_bucket;
+				transactionNode *temp;
+				int offset=hash(walletID,arguments->senderHashtableNumOfEntries);//EDW MIA WHILE OPOU 8A PERNAEI TO TRANSACTION LIST
+				//receiverHashTable->buckets[offset]->
+				checkIfUserIsAlreadyInHashTable(senderHashTable,offset,walletID,&receiver_temp,&receiver_point_on_bucket);
+				temp=receiver_temp->arrayOfUsers[receiver_point_on_bucket].transactionList;
+				printf("AAAAAAA\n");
+				while(temp!=NULL){
+					if(check_date(temp->tr,time1,time2,date1,date2,flag_time,flag_date)==1){
+						printf("%s %s %s %d %d-%d-%d %d:%d\n",temp->tr->transactionID,temp->tr->senderWalletID,temp->tr->receiverWalletID,temp->tr->value,temp->tr->date->day,temp->tr->date->month,temp->tr->date->year,temp->tr->time->hour,temp->tr->time->minutes);
+					}
+					temp=temp->next;
 				}
-				i++;
-				date2.month=0;
-				while(line[i]!='-'){//an sthn arxh exei kena
-					date2.month=date2.month*10+line[i]-'0';
-					i++;
-				}
-				i++;
-				date2.year=0;
-				while(line[i]!=' ' && line[i]!='\t' && line[i]!='\0'){//an sthn arxh exei kena
-					date2.year=date2.year*10+line[i]-'0';
-					i++;
-				}
-				printf("RANGE %d:%d %d-%d-%d   %d:%d %d-%d-%d\n",time1.hour,time1.minutes,date1.day,date1.month,date1.year,time2.hour,time2.minutes,date2.day,date2.month,date2.year);
 			}
 			else{
 				//NA TO BALW SE MIA FUNCTION , ALLAGH STHS METABLHTES

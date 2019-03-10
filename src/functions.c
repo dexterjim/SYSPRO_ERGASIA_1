@@ -1017,5 +1017,158 @@ void printTransactionHistory(bitCoinIdTreeNode *node){
 
 
 
+int check_date(transaction *tr,struct_time time1,struct_time time2,struct_date date1,struct_date date2,int flag_time,int flag_date){
+	if(flag_date==4){
+		int qaz_tr=tr->date->year*10000+tr->date->month*100+tr->date->day;
+		int qaz_1=date1.year*10000+date1.month*100+date1.day;
+		int qaz_2=date2.year*10000+date2.month*100+date2.day;
+
+		printf("ZZZZ   %d %d %d\n",qaz_tr,qaz_1,qaz_2);
+
+		if(qaz_tr>qaz_1 && qaz_tr<qaz_2){
+			return 1;
+		}
+		else if(qaz_tr==qaz_1 && qaz_tr==qaz_2){//dld milame gia thn idia mera
+			if(flag_time==2){
+				int qwe_tr=tr->time->hour*100+tr->time->minutes;
+				int qwe_1=time1.hour*100+time1.minutes;
+				int qwe_2=time2.hour*100+time2.minutes;
+
+				if(qwe_tr>=qwe_1 && qwe_tr<=qwe_2){
+					return 1;
+				}
+				else{
+					return 0;
+				}
+			}
+			else{
+				return 1;
+			}
+		}
+		else if(qaz_tr==qaz_1){
+			if(flag_time==2){
+				int qwe_tr=tr->time->hour*100+tr->time->minutes;
+				int qwe_1=time1.hour*100+time1.minutes;
+
+				if(qwe_tr>=qwe_1){
+					return 1;
+				}
+				else{
+					return 0;
+				}
+			}
+			else{
+				return 1;
+			}
+		}
+		else if(qaz_tr==qaz_2){
+			if(flag_time==2){
+				int qwe_tr=tr->time->hour*100+tr->time->minutes;
+				int qwe_2=time2.hour*100+time2.minutes;
+
+				if(qwe_tr<=qwe_2){
+					return 1;
+				}
+				else{
+					return 0;
+				}
+			}
+			else{
+				return 1;
+			}
+		}
+	}
+	else if(flag_time==2){
+		int qwe_tr=tr->time->hour*100+tr->time->minutes;
+		int qwe_1=time1.hour*100+time1.minutes;
+		int qwe_2=time2.hour*100+time2.minutes;
+
+		if(qwe_tr>=qwe_1 && qwe_tr<=qwe_2){
+			return 1;
+		}
+		else{
+			return 0;
+		}
+	}
+	return 0;
+
+	/*if(flag_date==4){
+		if(tr->date->year > date1.year && tr->date->year < date2.year){
+			return 1;
+		}
+		else if(tr->date->year == date1.year){
+			if(tr->date->month > date1.month){
+				return 1;
+			}
+			else if(tr->date->month == date1.month){
+				if(tr->date->day > date1.day){
+					return 1;
+				}
+				else if(tr->date->day == date1.day){
+					if(flag_time==2){
+						if(tr->time->hour > time1.hour){
+							return 1;
+						}
+						else if(tr->time->hour == time1.hour){
+							if(tr->time->minutes >= time1.minutes){
+								return 1;
+							}
+						}
+					}
+					else{
+						return 1;
+					}
+				}
+			}
+		}
+		else if(tr->date->year == date2.year){
+			if(tr->date->month < date2.month){
+				return 1;
+			}
+			else if(tr->date->month == date2.month){
+				if(tr->date->day < date2.day){
+					return 1;
+				}
+				else if(tr->date->day == date2.day){
+					if(flag_time==2){
+						if(tr->time->hour < time2.hour){
+							return 1;
+						}
+						else if(tr->time->hour == time2.hour){
+							if(tr->time->minutes <= time2.minutes){
+								return 1;
+							}
+						}
+					}
+					else{
+						return 1;
+					}
+				}
+			}
+		}
+	}
+	else if(flag_time==2){
+		if(tr->time->hour > time1.hour && tr->time->hour < time2.hour){
+			return 1;
+		}
+		else if(tr->time->hour == time1.hour){
+			if(tr->time->minutes >= time1.minutes){
+				return 1;
+			}
+		}
+		else if(tr->time->hour == time2.hour){
+			if(tr->time->minutes <= time2.minutes){
+				return 1;
+			}
+		}
+	}
+	return 0;*/
+}
+
+
+
+
+
+
 
 
