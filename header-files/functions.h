@@ -12,6 +12,7 @@ struct struct_arguments{
 int takeArguments(struct_arguments **arguments,int argc,char **argv);
 
 ////////////
+typedef struct transaction transaction;
 
 typedef struct bitCoinIdArray bitCoinIdArray;
 typedef struct onebitCoinId onebitCoinId;
@@ -35,6 +36,8 @@ struct onebitCoinId{
 struct bitCoinIdTreeNode{
 	char *walletID;
 	int value;
+
+	transaction *tr;
 
 	bitCoinIdTreeNode *left;
 	bitCoinIdTreeNode *right;
@@ -74,7 +77,7 @@ typedef struct bucketNode bucketNode;
 typedef struct bucketElement bucketElement;
 typedef struct transactionNode transactionNode;
 
-typedef struct transaction transaction;
+//typedef struct transaction transaction;
 
 struct HashTable{
 	//exw to size apo ta arguments (to size tou hash table)
@@ -125,6 +128,7 @@ struct transaction{
 	struct_date *date;
 	struct_time *time;
 	transaction *next;//
+	int unused;
 };
 struct struct_date{
 	int day;
@@ -149,4 +153,4 @@ void printTree(bitCoinIdTreeNode *node);
 int findUnspent(bitCoinIdTreeNode *node);
 int countDigits(int x);
 
-
+void printTransactionHistory(bitCoinIdTreeNode *node);

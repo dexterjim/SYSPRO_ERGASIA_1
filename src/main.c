@@ -512,7 +512,16 @@ for(int i=0;i<bitCoins->size;i++){
 			strncpy(bitCoinID,&(line[start]),i-start);
 			printf("bitCoinID=%s...\n",bitCoinID);
 
-			
+			transaction *tr;
+			tr=ListOfTransactions->start;
+			while(tr!=NULL){//mhdenizw ta unused
+				tr->unused=0;
+				tr=tr->next;
+			}
+
+			onebitCoinId *temp_bitcoin;
+			temp_bitcoin=findBitCoin(bitCoins,bitCoinID);
+			printTransactionHistory(temp_bitcoin->pointTree);
 		}
 		else if(strcmp(command,"exit")==0){
 			printf("EXIT\n");

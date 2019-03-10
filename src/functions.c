@@ -158,6 +158,7 @@ int takeData_BitCoinBalanceFile(bitCoinIdArray **bitCoins,struct_wallets **walle
 			(*bitCoins)->array[bitcoincount].pointTree->walletID=malloc((strlen((*wallets)->users[walletcount].walletID)+1)*sizeof(char));
 			strncpy((*bitCoins)->array[bitcoincount].pointTree->walletID,(*wallets)->users[walletcount].walletID,strlen((*wallets)->users[walletcount].walletID)+1);
 			(*bitCoins)->array[bitcoincount].pointTree->value=arguments->bitCoinValue;
+			(*bitCoins)->array[bitcoincount].pointTree->tr=NULL;/////
 			(*bitCoins)->array[bitcoincount].pointTree->left=NULL;
 			(*bitCoins)->array[bitcoincount].pointTree->right=NULL;
 			if(checkForDuplicatebitCoinID((*bitCoins),bitcoincount)==-1){
@@ -746,12 +747,14 @@ printf("NULL receiverHashTable->numOfUsersPerBucket=%d\n",receiverHashTable->num
 		//sender_bit_coin_list=sender_temp->arrayOfUsers[sender_point_on_bucket].users->list;
 		int remaining=tr->value;
 		while(remaining>0){//metaferw ta bitcoins
+			sender_temp->arrayOfUsers[sender_point_on_bucket].users->list->treenode->tr=tr;//tou sundew to tr , TA FULLA DEN DEIXNOUN SE TR !!
 			if(remaining<sender_temp->arrayOfUsers[sender_point_on_bucket].users->list->treenode->value){//afhnei upoloipo ston kombo ara 2 komboi
 				//left
 				sender_temp->arrayOfUsers[sender_point_on_bucket].users->list->treenode->left=malloc(sizeof(bitCoinIdTreeNode));//ekei ta edwse
 				sender_temp->arrayOfUsers[sender_point_on_bucket].users->list->treenode->left->walletID=malloc((strlen(tr->receiverWalletID)+1)*sizeof(char));
 				strcpy(sender_temp->arrayOfUsers[sender_point_on_bucket].users->list->treenode->left->walletID,tr->receiverWalletID);
 				sender_temp->arrayOfUsers[sender_point_on_bucket].users->list->treenode->left->value=remaining;
+				sender_temp->arrayOfUsers[sender_point_on_bucket].users->list->treenode->left->tr=NULL;////
 				sender_temp->arrayOfUsers[sender_point_on_bucket].users->list->treenode->left->left=NULL;
 				sender_temp->arrayOfUsers[sender_point_on_bucket].users->list->treenode->left->right=NULL;
 
@@ -762,6 +765,7 @@ printf("NULL receiverHashTable->numOfUsersPerBucket=%d\n",receiverHashTable->num
 				sender_temp->arrayOfUsers[sender_point_on_bucket].users->list->treenode->right->walletID=malloc((strlen(tr->senderWalletID)+1)*sizeof(char));
 				strcpy(sender_temp->arrayOfUsers[sender_point_on_bucket].users->list->treenode->right->walletID,tr->senderWalletID);
 				sender_temp->arrayOfUsers[sender_point_on_bucket].users->list->treenode->right->value=sender_temp->arrayOfUsers[sender_point_on_bucket].users->list->treenode->value-remaining;
+				sender_temp->arrayOfUsers[sender_point_on_bucket].users->list->treenode->right->tr=NULL;////
 				sender_temp->arrayOfUsers[sender_point_on_bucket].users->list->treenode->right->left=NULL;
 				sender_temp->arrayOfUsers[sender_point_on_bucket].users->list->treenode->right->right=NULL;
 
@@ -773,6 +777,7 @@ printf("NULL receiverHashTable->numOfUsersPerBucket=%d\n",receiverHashTable->num
 				sender_temp->arrayOfUsers[sender_point_on_bucket].users->list->treenode->left->walletID=malloc((strlen(tr->receiverWalletID)+1)*sizeof(char));
 				strcpy(sender_temp->arrayOfUsers[sender_point_on_bucket].users->list->treenode->left->walletID,tr->receiverWalletID);
 				sender_temp->arrayOfUsers[sender_point_on_bucket].users->list->treenode->left->value=sender_temp->arrayOfUsers[sender_point_on_bucket].users->list->treenode->value;
+				sender_temp->arrayOfUsers[sender_point_on_bucket].users->list->treenode->left->tr=NULL;////
 				sender_temp->arrayOfUsers[sender_point_on_bucket].users->list->treenode->left->left=NULL;
 				sender_temp->arrayOfUsers[sender_point_on_bucket].users->list->treenode->left->right=NULL;
 
@@ -995,3 +1000,22 @@ int countDigits(int x){
 	}
 	return c;
 }
+
+void printTransactionHistory(bitCoinIdTreeNode *node){
+	if(node->left!=NULL){//an einai NULL to left paidi tote autos o KOMBOS den exei labei meros se transaction
+		if(node->tr->unused==0){
+			printf("%s %s %s %d %d-%d-%d %d:%d\n",node->tr->transactionID,node->tr->senderWalletID,node->tr->receiverWalletID,node->tr->value,node->tr->date->day,node->tr->date->month,node->tr->date->year,node->tr->time->hour,node->tr->time->minutes);
+			node->tr->unused=1;
+			printTransactionHistory(node->left);
+			if(node->right!=NULL){
+				printTransactionHistory(node->right);
+			}
+		}
+	}
+}
+
+
+
+
+
+
