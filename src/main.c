@@ -90,10 +90,11 @@ for(int i=0;i<bitCoins->size;i++){
 	while(strcmp(command,"exit")!=0){
 		printf("/");
 
+		memset(line,'\0',2048);
 		fgets(line,line_size,stdin);
 		line[strlen(line)-1]='\0';
 
-		memset(command,0,20);
+		memset(command,'\0',20);
 		int i=0;
 		while(line[i]==' ' || line[i]=='\t' || line[i]=='\0'){//an sthn arxh exei kena
 			i++;
@@ -110,13 +111,18 @@ for(int i=0;i<bitCoins->size;i++){
 
 		if(strcmp(command,"requestTransaction")==0){
 			transaction *tr;
-			tr=breakTransaction(line,i,strlen(line));
+			tr=breakTransaction(line,i,strlen(line),ListOfTransactions);
+			if(tr==NULL){
+				continue;
+			}
 			if(strcmp(tr->senderWalletID,tr->receiverWalletID)==0){//elegxw an o sender kai o receiver einai o idios , EDW TERMATIZEI TO PROGRAMMA???
 				printf("\n\nSender=Receiver!!!\n\n\n");
+				free(tr);
 				continue;
 			}
 			if(findUser(wallets,tr->senderWalletID)==NULL || findUser(wallets,tr->receiverWalletID)==NULL){//EDW TERMATIZEI TO PROGRAMMA???
 				printf("\n\nSender or Receiver NOT FOUND!!!\n\n\n");
+				free(tr);
 				continue;
 			}
 			//MPOREI NA 8ELEI KAI ELEGXO MHN KAPOIA SYNALAGH EINAI META THN TWRINH WRA
@@ -167,7 +173,7 @@ for(int i=0;i<bitCoins->size;i++){
 				//qaz++;
 			}
 			printf("numberOfTransactions=%d\n",numberOfTransactions);
-			tr=malloc(numberOfTransactions*sizeof(transaction *));
+			//tr=malloc(numberOfTransactions*sizeof(transaction *));
 			if(numberOfTransactions==0){//diabazw apo arxeio
 				while(line[i]==' ' || line[i]=='\t' || line[i]=='\0'){//an sthn arxh exei kena
 					i++;
@@ -178,6 +184,7 @@ for(int i=0;i<bitCoins->size;i++){
 				}
 				char *filename;
 				filename=malloc((i-start)*sizeof(char));
+				memset(filename,'\0',i-start);
 				strncpy(filename,&(line[start]),i-start);
 				printf("filename=%s...\n",filename);
 
@@ -202,23 +209,160 @@ for(int i=0;i<bitCoins->size;i++){
 				}
 				i=0;
 				for(int qaz=0;qaz<numberOfTransactions;qaz++){
+					transaction *tr;
 					int start=i;
 					while(string[i]!=';'){
 						i++;
 					}
-					tr=breakTransaction(string,start,i);
+					tr=breakTransaction(string,start,i,ListOfTransactions);
+/////////////////////////////////////////////////////////////////
+					if(strcmp(tr->senderWalletID,tr->receiverWalletID)==0){//elegxw an o sender kai o receiver einai o idios , EDW TERMATIZEI TO PROGRAMMA???
+						printf("\n\nSender=Receiver!!!\n\n\n");
+						continue;
+					}
+					if(findUser(wallets,tr->senderWalletID)==NULL || findUser(wallets,tr->receiverWalletID)==NULL){//EDW TERMATIZEI TO PROGRAMMA???
+						printf("\n\nSender or Receiver NOT FOUND!!!\n\n\n");
+						continue;
+					}
+					//MPOREI NA 8ELEI KAI ELEGXO MHN KAPOIA SYNALAGH EINAI META THN TWRINH WRA
+					
+					if(executeTransaction(bitCoins,wallets,senderHashTable,receiverHashTable,arguments,tr)==0){
+						/////////////////////////
+						printf("AAAAAAAAAAAAAAAAA\n");
+						if(ListOfTransactions->start==NULL){
+							ListOfTransactions->start=tr;
+							ListOfTransactions->start->next=NULL;
+							ListOfTransactions->end=ListOfTransactions->start;
+						}
+						else{
+							ListOfTransactions->end->next=tr;
+							ListOfTransactions->end=ListOfTransactions->end->next;
+							ListOfTransactions->end->next=NULL;
+						}
+						printf("BBBBBBBBB\n");
+
+						//https://stackoverflow.com/questions/9655202/how-to-convert-integer-to-string-in-c
+						ListOfTransactions->end->transactionID=malloc(countDigits(next_tr_id)*sizeof(char));
+						sprintf(ListOfTransactions->end->transactionID, "%d", next_tr_id);
+						next_tr_id++;
+						printf("ListOfTransactions->end->transactionID=%s..\n",ListOfTransactions->end->transactionID);
+						/////////////////////////
+					}
+//////////////////////////////////////////////////////////////////
 					i++;
 				}
+				free(filename);
+				free(string);
 			}
-			else{//diabazw apo grammh entolwn
-				for(int qaz=0;qaz<numberOfTransactions;qaz++){
+			else if(numberOfTransactions==1){//diabazw apo grammh entolwn
+				//for(int qaz=0;qaz<numberOfTransactions;qaz++){
 					int start=i;
 					while(line[i]!=';'){
 						i++;
 					}
-					tr=breakTransaction(line,start,i);
-					i++;
+					tr=breakTransaction(line,start,i,ListOfTransactions);
+					//i++;
+/////////////////////////////////////////////////////////////////
+					if(strcmp(tr->senderWalletID,tr->receiverWalletID)==0){//elegxw an o sender kai o receiver einai o idios , EDW TERMATIZEI TO PROGRAMMA???
+						printf("\n\nSender=Receiver!!!\n\n\n");
+						continue;
+					}
+					if(findUser(wallets,tr->senderWalletID)==NULL || findUser(wallets,tr->receiverWalletID)==NULL){//EDW TERMATIZEI TO PROGRAMMA???
+						printf("\n\nSender or Receiver NOT FOUND!!!\n\n\n");
+						continue;
+					}
+					//MPOREI NA 8ELEI KAI ELEGXO MHN KAPOIA SYNALAGH EINAI META THN TWRINH WRA
+					
+					if(executeTransaction(bitCoins,wallets,senderHashTable,receiverHashTable,arguments,tr)==0){
+						/////////////////////////
+						printf("AAAAAAAAAAAAAAAAA\n");
+						if(ListOfTransactions->start==NULL){
+							ListOfTransactions->start=tr;
+							ListOfTransactions->start->next=NULL;
+							ListOfTransactions->end=ListOfTransactions->start;
+						}
+						else{
+							ListOfTransactions->end->next=tr;
+							ListOfTransactions->end=ListOfTransactions->end->next;
+							ListOfTransactions->end->next=NULL;
+						}
+						printf("BBBBBBBBB\n");
+
+						//https://stackoverflow.com/questions/9655202/how-to-convert-integer-to-string-in-c
+						ListOfTransactions->end->transactionID=malloc(countDigits(next_tr_id)*sizeof(char));
+						sprintf(ListOfTransactions->end->transactionID, "%d", next_tr_id);
+						next_tr_id++;
+						printf("ListOfTransactions->end->transactionID=%s..\n",ListOfTransactions->end->transactionID);
+						/////////////////////////
+					}
+//////////////////////////////////////////////////////////////////
+				//}
+				//memset(command,'\0',20);
+				while(1){
+					memset(line,'\0',2048);
+					fgets(line,line_size,stdin);
+					line[strlen(line)-1]='\0';
+
+					memset(command,'\0',20);
+					int i=0;
+					while(line[i]==' ' || line[i]=='\t' || line[i]=='\0'){//an sthn arxh exei kena
+						i++;
+					}
+					int j=0;
+					while(line[i]!=' ' && line[i]!='\t' && line[i]!='\0'){//command
+						command[j]=line[i];
+						i++;
+						j++;
+					}
+
+					if(strcmp(command,"end")==0){
+						break;
+					}
+					else{
+						int start=i;
+						while(line[i]!=';'){
+							i++;
+						}
+						tr=breakTransaction(line,0,i,ListOfTransactions);
+/////////////////////////////////////////////////////////////////
+						if(strcmp(tr->senderWalletID,tr->receiverWalletID)==0){//elegxw an o sender kai o receiver einai o idios , EDW TERMATIZEI TO PROGRAMMA???
+							printf("\n\nSender=Receiver!!!\n\n\n");
+							continue;
+						}
+						if(findUser(wallets,tr->senderWalletID)==NULL || findUser(wallets,tr->receiverWalletID)==NULL){//EDW TERMATIZEI TO PROGRAMMA???
+							printf("\n\nSender or Receiver NOT FOUND!!!\n\n\n");
+							continue;
+						}
+						//MPOREI NA 8ELEI KAI ELEGXO MHN KAPOIA SYNALAGH EINAI META THN TWRINH WRA
+						
+						if(executeTransaction(bitCoins,wallets,senderHashTable,receiverHashTable,arguments,tr)==0){
+							/////////////////////////
+							printf("AAAAAAAAAAAAAAAAA\n");
+							if(ListOfTransactions->start==NULL){
+								ListOfTransactions->start=tr;
+								ListOfTransactions->start->next=NULL;
+								ListOfTransactions->end=ListOfTransactions->start;
+							}
+							else{
+								ListOfTransactions->end->next=tr;
+								ListOfTransactions->end=ListOfTransactions->end->next;
+								ListOfTransactions->end->next=NULL;
+							}
+							printf("BBBBBBBBB\n");
+
+							//https://stackoverflow.com/questions/9655202/how-to-convert-integer-to-string-in-c
+							ListOfTransactions->end->transactionID=malloc(countDigits(next_tr_id)*sizeof(char));
+							sprintf(ListOfTransactions->end->transactionID, "%d", next_tr_id);
+							next_tr_id++;
+							printf("ListOfTransactions->end->transactionID=%s..\n",ListOfTransactions->end->transactionID);
+							/////////////////////////
+						}
+//////////////////////////////////////////////////////////////////
+					}
 				}
+			}
+			else{
+				printf("wrong format\n");
 			}
 		}
 		else if(strcmp(command,"findEarnings")==0){
@@ -231,17 +375,34 @@ for(int i=0;i<bitCoins->size;i++){
 			}
 			char *walletID;
 			walletID=malloc((i-start)*sizeof(char));
+			//memset(walletID,'\0',i-start);
 			strncpy(walletID,&(line[start]),i-start);
+			walletID[i-start]=0;
 			printf("walletID=%s...\n",walletID);
 
 			start=i;
-			int flag=0;
+			int flag=0,flag_time=0,flag_date=0;
 			while(i<strlen(line)){//elegxo an uparxei tpt allo
 				if(line[i]!=' ' && line[i]!='\t' && line[i]!='\0' && line[i]!='\n'){
 					flag=1;
-					break;
+					//break;
 				}
+				if(line[i]==':'){
+					flag_time++;
+				}
+				if(line[i]=='-'){
+					flag_date++;
+				}
+
 				i++;
+			}
+			if(flag_time!=2 && flag_time!=0){
+				printf("WRONG FORMAT!!!\n");
+				continue;
+			}
+			if(flag_date!=4 && flag_date!=0){
+				printf("WRONG FORMAT!!!\n");
+				continue;
 			}
 			if(flag==1){//uparxei euros xronou
 				struct_date date1,date2;
@@ -249,82 +410,125 @@ for(int i=0;i<bitCoins->size;i++){
 
 				i=start;
 
-				while(line[i]==' ' || line[i]=='\t' || line[i]=='\0'){//an sthn arxh exei kena
-					i++;
-				}
-				time1.hour=0;
-				while(line[i]!=':'){
-					time1.hour=time1.hour*10+line[i]-'0';
-					i++;
-				}
-				i++;
-				time1.minutes=0;
-				while(line[i]!=' ' && line[i]!='\t' && line[i]!='\0'){
-					time1.minutes=time1.minutes*10+line[i]-'0';
-					i++;
-				}
+				///////////
+				if(flag_time==2){
 
-				while(line[i]==' ' || line[i]=='\t' || line[i]=='\0'){//an sthn arxh exei kena
+					while(line[i]==' ' || line[i]=='\t' || line[i]=='\0'){//an sthn arxh exei kena
+						i++;
+					}
+					time1.hour=0;
+					while(line[i]!=':'){
+						time1.hour=time1.hour*10+line[i]-'0';
+						i++;
+					}
 					i++;
-				}
+					time1.minutes=0;
+					while(line[i]!=' ' && line[i]!='\t' && line[i]!='\0'){
+						time1.minutes=time1.minutes*10+line[i]-'0';
+						i++;
+					}
 
-				date1.day=0;
-				while(line[i]!='-'){//an sthn arxh exei kena
-					date1.day=date1.day*10+line[i]-'0';
-					i++;
 				}
-				i++;
-				date1.month=0;
-				while(line[i]!='-'){//an sthn arxh exei kena
-					date1.month=date1.month*10+line[i]-'0';
-					i++;
-				}
-				i++;
-				date1.year=0;
-				while(line[i]!=' ' && line[i]!='\t' && line[i]!='\0'){//an sthn arxh exei kena
-					date1.year=date1.year*10+line[i]-'0';
-					i++;
-				}
+				////////////
+				if(flag_date==4){
 
+					while(line[i]==' ' || line[i]=='\t' || line[i]=='\0'){//an sthn arxh exei kena
+						i++;
+					}
+
+					date1.day=0;
+					while(line[i]!='-'){//an sthn arxh exei kena
+						date1.day=date1.day*10+line[i]-'0';
+						i++;
+					}
+					i++;
+					date1.month=0;
+					while(line[i]!='-'){//an sthn arxh exei kena
+						date1.month=date1.month*10+line[i]-'0';
+						i++;
+					}
+					i++;
+					date1.year=0;
+					while(line[i]!=' ' && line[i]!='\t' && line[i]!='\0'){//an sthn arxh exei kena
+						date1.year=date1.year*10+line[i]-'0';
+						i++;
+					}
+
+				}
 				//gia thn deuterh hmerominia
 
-				while(line[i]==' ' || line[i]=='\t' || line[i]=='\0'){//an sthn arxh exei kena
+				///////////
+				if(flag_time==2){
+
+					while(line[i]==' ' || line[i]=='\t' || line[i]=='\0'){//an sthn arxh exei kena
+						i++;
+					}
+					time2.hour=0;
+					while(line[i]!=':'){//an sthn arxh exei kena
+						time2.hour=time2.hour*10+line[i]-'0';
+						i++;
+					}
 					i++;
+					time2.minutes=0;
+					while(line[i]!=' ' && line[i]!='\t' && line[i]!='\0'){//an sthn arxh exei kena
+						time2.minutes=time2.minutes*10+line[i]-'0';
+						i++;
+					}
+
+
 				}
-				time2.hour=0;
-				while(line[i]!=':'){//an sthn arxh exei kena
-					time2.hour=time2.hour*10+line[i]-'0';
+				////////////
+				if(flag_date==4){
+
+					while(line[i]==' ' || line[i]=='\t' || line[i]=='\0'){//an sthn arxh exei kena
+						i++;
+					}
+
+					date2.day=0;
+					while(line[i]!='-'){//an sthn arxh exei kena
+						date2.day=date2.day*10+line[i]-'0';
+						i++;
+					}
 					i++;
-				}
-				i++;
-				time2.minutes=0;
-				while(line[i]!=' ' && line[i]!='\t' && line[i]!='\0'){//an sthn arxh exei kena
-					time2.minutes=time2.minutes*10+line[i]-'0';
+					date2.month=0;
+					while(line[i]!='-'){//an sthn arxh exei kena
+						date2.month=date2.month*10+line[i]-'0';
+						i++;
+					}
 					i++;
+					date2.year=0;
+					while(line[i]!=' ' && line[i]!='\t' && line[i]!='\0'){//an sthn arxh exei kena
+						date2.year=date2.year*10+line[i]-'0';
+						i++;
+					}
+
 				}
 
-				while(line[i]==' ' || line[i]=='\t' || line[i]=='\0'){//an sthn arxh exei kena
-					i++;
+				if(flag_time==2 && flag_date==4){
+					printf("RANGE %d:%d %d-%d-%d   %d:%d %d-%d-%d\n",time1.hour,time1.minutes,date1.day,date1.month,date1.year,time2.hour,time2.minutes,date2.day,date2.month,date2.year);
+				}
+				else if(flag_date==4){
+					printf("RANGE %d-%d-%d %d-%d-%d\n",date1.day,date1.month,date1.year,date2.day,date2.month,date2.year);
+				}
+				else{
+					printf("RANGE %d:%d %d:%d\n",time1.hour,time1.minutes,time2.hour,time2.minutes);
 				}
 
-				date2.day=0;
-				while(line[i]!='-'){//an sthn arxh exei kena
-					date2.day=date2.day*10+line[i]-'0';
-					i++;
+				//NA TO BALW SE MIA FUNCTION
+				bucketNode *receiver_temp;
+				int receiver_point_on_bucket;
+				transactionNode *temp;
+				int offset=hash(walletID,arguments->receiverHashtableNumOfEntries);//EDW MIA WHILE OPOU 8A PERNAEI TO TRANSACTION LIST
+				//receiverHashTable->buckets[offset]->
+				checkIfUserIsAlreadyInHashTable(receiverHashTable,offset,walletID,&receiver_temp,&receiver_point_on_bucket);
+				temp=receiver_temp->arrayOfUsers[receiver_point_on_bucket].transactionList;
+				printf("AAAAAAA\n");
+				while(temp!=NULL){
+					if(check_date(temp->tr,time1,time2,date1,date2,flag_time,flag_date)==1){
+						printf("%s %s %s %d %d-%d-%d %d:%d\n",temp->tr->transactionID,temp->tr->senderWalletID,temp->tr->receiverWalletID,temp->tr->value,temp->tr->date->day,temp->tr->date->month,temp->tr->date->year,temp->tr->time->hour,temp->tr->time->minutes);
+					}
+					temp=temp->next;
 				}
-				i++;
-				date2.month=0;
-				while(line[i]!='-'){//an sthn arxh exei kena
-					date2.month=date2.month*10+line[i]-'0';
-					i++;
-				}
-				i++;
-				date2.year=0;
-				while(line[i]!=' ' && line[i]!='\t' && line[i]!='\0'){//an sthn arxh exei kena
-					date2.year=date2.year*10+line[i]-'0';
-					i++;
-				}
-				printf("RANGE %d:%d %d-%d-%d   %d:%d %d-%d-%d\n",time1.hour,time1.minutes,date1.day,date1.month,date1.year,time2.hour,time2.minutes,date2.day,date2.month,date2.year);
 			}
 			else{
 				//NA TO BALW SE MIA FUNCTION
@@ -341,6 +545,7 @@ for(int i=0;i<bitCoins->size;i++){
 					temp=temp->next;
 				}
 			}
+			free(walletID);
 		}
 		else if(strcmp(command,"findPayments")==0){
 			while(line[i]==' ' || line[i]=='\t' || line[i]=='\0'){//an sthn arxh exei kena
@@ -353,6 +558,7 @@ for(int i=0;i<bitCoins->size;i++){
 			char *walletID;
 			walletID=malloc((i-start)*sizeof(char));
 			strncpy(walletID,&(line[start]),i-start);
+			walletID[i-start]=0;//AYTO NA TO BALW KAI ALLOU EDW STIS ENTOLES
 			printf("walletID=%s...\n",walletID);
 
 			start=i;
@@ -520,6 +726,7 @@ for(int i=0;i<bitCoins->size;i++){
 					temp=temp->next;
 				}
 			}
+			free(walletID);
 		}
 		else if(strcmp(command,"walletStatus")==0){
 			while(line[i]==' ' || line[i]=='\t' || line[i]=='\0'){//an sthn arxh exei kena
@@ -531,6 +738,7 @@ for(int i=0;i<bitCoins->size;i++){
 			}
 			char *walletID;
 			walletID=malloc((i-start)*sizeof(char));
+			//memset(walletID,'\0',i-start);
 			strncpy(walletID,&(line[start]),i-start);
 			walletID[i-start]=0;
 			printf("walletID=%s...\n",walletID);
@@ -538,6 +746,7 @@ for(int i=0;i<bitCoins->size;i++){
 			oneWallet *wallet;
 			wallet=findUser(wallets,walletID);
 			printf("User: %s has %d$\n",wallet->walletID,wallet->balance);
+			free(walletID);
 		}
 		else if(strcmp(command,"bitCoinStatus")==0){
 			while(line[i]==' ' || line[i]=='\t' || line[i]=='\0'){//an sthn arxh exei kena
@@ -549,6 +758,7 @@ for(int i=0;i<bitCoins->size;i++){
 			}
 			char *bitCoinID;
 			bitCoinID=malloc((i-start)*sizeof(char));
+			//memset(bitCoinID,'\0',i-start);
 			strncpy(bitCoinID,&(line[start]),i-start);
 			bitCoinID[i-start]=0;//AYTO NA TO BALW PANTOU !!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 			printf("bitCoinID=%s...\n",bitCoinID);
@@ -556,6 +766,7 @@ for(int i=0;i<bitCoins->size;i++){
 			onebitCoinId *bitcoin;
 			bitcoin=findBitCoin(bitCoins,bitCoinID);
 			printf("bitCoinID: %s \n\t-starting value = %d$\n\t-number of times used in a transaction = %d\n\t-unspent = %d$\n\n",bitCoinID,bitcoin->pointTree->value,bitcoin->numOfTransactions,findUnspent(bitcoin->pointTree));
+			free(bitCoinID);
 		}
 		else if(strcmp(command,"traceCoin")==0){
 			while(line[i]==' ' || line[i]=='\t' || line[i]=='\0'){//an sthn arxh exei kena
@@ -567,8 +778,10 @@ for(int i=0;i<bitCoins->size;i++){
 			}
 			char *bitCoinID;
 			bitCoinID=malloc((i-start)*sizeof(char));
+			//memset(bitCoinID,'\0',i-start);
 			strncpy(bitCoinID,&(line[start]),i-start);
 			printf("bitCoinID=%s...\n",bitCoinID);
+			bitCoinID[i-start]=0;//
 
 			transaction *tr;
 			tr=ListOfTransactions->start;
@@ -580,14 +793,54 @@ for(int i=0;i<bitCoins->size;i++){
 			onebitCoinId *temp_bitcoin;
 			temp_bitcoin=findBitCoin(bitCoins,bitCoinID);
 			printTransactionHistory(temp_bitcoin->pointTree);
+
+			free(bitCoinID);
 		}
 		else if(strcmp(command,"exit")==0){
+			//free bitCoins
+			for(i=0;i<bitCoins->size;i++){
+				freeBitCoinTree(bitCoins->array[i].pointTree);
+				free(bitCoins->array[i].bitcoinid);
+			}
+			free(bitCoins->array);
+			free(bitCoins);
+
+			//free wallets;
+			for(i=0;i<wallets->size;i++){
+				freeWalletUsersList(wallets->users[i].list);
+				free(wallets->users[i].walletID);
+			}
+			free(wallets->users);
+			free(wallets);
+
+			//free hash tables
+			for(i=0;i<arguments->senderHashtableNumOfEntries;i++){
+				freeHashTableBuckets(senderHashTable->buckets[i]);
+			}
+			free(senderHashTable->buckets);
+			free(senderHashTable);
+
+			for(i=0;i<arguments->receiverHashtableNumOfEntries;i++){
+				freeHashTableBuckets(receiverHashTable->buckets[i]);
+			}
+			free(receiverHashTable->buckets);
+			free(receiverHashTable);
+
+			freeListOfTransactions(ListOfTransactions->start);
+			free(ListOfTransactions);
+
+			free(line);
+			free(arguments->bitCoinBalanceFile);
+			free(arguments->transactionsFile);
+			free(arguments);
+
 			printf("EXIT\n");
 		}
 		else{
 			printf("INVALID COMMAND!!!\n");
 		}
 	}
+	free(command);
 }
 
 

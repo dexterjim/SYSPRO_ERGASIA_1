@@ -99,7 +99,7 @@ struct bucketElement{
 };
 
 struct transactionNode{
-	usersBitCoinsNode *withUser;//me poion ekane thn sunalagh , eite tou edwse eite tou phre bitcoins, ousiastika einai o deikths sto dentro ,MPOREI NA MHN XREIAZETAI MIAS KAI TO FILAW STO tr
+	//usersBitCoinsNode *withUser;//me poion ekane thn sunalagh , eite tou edwse eite tou phre bitcoins, ousiastika einai o deikths sto dentro ,MPOREI NA MHN XREIAZETAI MIAS KAI TO FILAW STO tr
 	transaction *tr;//MALLON PREPEI NA BALW EDW NA FILAW KAPWS KAI TO TRANSACTION , MPORW ME DEIKTH OPWS KAI BUCKETS
 	transactionNode *next;
 };
@@ -146,7 +146,7 @@ int checkIfSenderHasEnoughBalance(struct_wallets *wallets,transaction *tr);
 oneWallet *findUser(struct_wallets *wallets,char *str);
 onebitCoinId *findBitCoin(bitCoinIdArray *bitCoins,char *str);
 int hash(char *str,int mod);
-transaction *breakTransaction(char *string,int begin,int end);
+transaction *breakTransaction(char *string,int begin,int end,listOfTransactions *ListOfTransactions);
 int checkForDuplicateTransactionID(listOfTransactions *lot);
 int checkIfUserIsAlreadyInHashTable(HashTable *ht,int offset,char *str,bucketNode **temp,int *point_on_bucket);
 void printTree(bitCoinIdTreeNode *node);
@@ -155,3 +155,10 @@ int countDigits(int x);
 
 void printTransactionHistory(bitCoinIdTreeNode *node);
 int check_date(transaction *tr,struct_time time1,struct_time time2,struct_date date1,struct_date date2,int flag_time,int flag_date);
+void freeBitCoinTree(bitCoinIdTreeNode *node);
+void freeWalletUsersList(usersBitCoinsNode *node);
+void freeHashTableBuckets(bucketNode *node);
+void freeHashTableBucketsTrList(transactionNode *node);
+void freeListOfTransactions(transaction *node);
+
+int check_time(transaction *tr,listOfTransactions *ListOfTransactions);

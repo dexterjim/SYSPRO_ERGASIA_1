@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <time.h>
 #include "../header-files/functions.h"
 
 int takeArguments(struct_arguments **arguments,int argc,char **argv){
@@ -130,6 +131,7 @@ int takeData_BitCoinBalanceFile(bitCoinIdArray **bitCoins,struct_wallets **walle
 			return -1;
 		}
 		(*wallets)->users[walletcount].balance=0;
+		(*wallets)->users[walletcount].list=NULL;
 		//walletcount++;
 
 		while(string[p]==' ' || string[p]=='\t'){//pernaw ta kena
@@ -182,7 +184,7 @@ int takeData_BitCoinBalanceFile(bitCoinIdArray **bitCoins,struct_wallets **walle
 
 		walletcount++;
 	}
-
+	free(string);
 	return 0;
 }
 
@@ -535,9 +537,9 @@ int takeData_TransactionsFile(bitCoinIdArray *bitCoins,struct_wallets *wallets,H
 		}
 
 		printf("%s %s %s %d %d-%d-%d %d:%d\n",tr->transactionID,tr->senderWalletID,tr->receiverWalletID,tr->value,tr->date->day,tr->date->month,tr->date->year,tr->time->hour,tr->time->minutes);
-		if(max_tr_id<strlen(tr->transactionID)){
-			max_tr_id=strlen(tr->transactionID);
-		}
+		//if(max_tr_id<strlen(tr->transactionID)){//to phga ligo pio katw
+		//	max_tr_id=strlen(tr->transactionID);
+		//}
 
 		if(checkForDuplicateTransactionID((*ListOfTransactions))==-1){
 			printf("\n\nDuplicateTransactionID!!!\n\n\n");
@@ -545,11 +547,19 @@ int takeData_TransactionsFile(bitCoinIdArray *bitCoins,struct_wallets *wallets,H
 		}
 		if(strcmp(tr->senderWalletID,tr->receiverWalletID)==0){//elegxw an o sender kai o receiver einai o idios , EDW TERMATIZEI TO PROGRAMMA???
 			printf("\n\nSender=Receiver!!!\n\n\n");
-			return -1;
+			//return -1;
+			free(tr);//
+			continue;//
 		}
 		if(findUser(wallets,tr->senderWalletID)==NULL || findUser(wallets,tr->receiverWalletID)==NULL){//EDW TERMATIZEI TO PROGRAMMA???
 			printf("\n\nSender or Receiver NOT FOUND!!!\n\n\n");
-			return -1;
+			//return -1;
+			free(tr);//
+			continue;//
+		}
+
+		if(max_tr_id<strlen(tr->transactionID)){
+			max_tr_id=strlen(tr->transactionID);
 		}
 		//MPOREI NA 8ELEI KAI ELEGXO MHN KAPOIA SYNALAGH EINAI META THN TWRINH WRA
 
@@ -572,8 +582,16 @@ int takeData_TransactionsFile(bitCoinIdArray *bitCoins,struct_wallets *wallets,H
 			printf("BBBBBBBBB\n");
 			/////////////////////////
 		}
+		else{
+			free(tr->transactionID);
+			free(tr->senderWalletID);
+			free(tr->receiverWalletID);
+			free(tr->date);
+			free(tr->time);
+			free(tr);
+		}
 	}
-
+	free(string);
 	//return 0;
 	return max_tr_id;//kanw return to mhkos tou pio megalou id , me strlen
 }
@@ -845,7 +863,7 @@ int hash(char *str,int mod){
 	return sum;
 }
 
-transaction *breakTransaction(char *string,int begin,int end){
+transaction *breakTransaction(char *string,int begin,int end,listOfTransactions *ListOfTransactions){
 	int p=begin;
 		transaction *tr;
 		tr=malloc(sizeof(transaction));
@@ -882,10 +900,52 @@ transaction *breakTransaction(char *string,int begin,int end){
 			p++;
 		}
 		tr->value=0;
-		while(string[p]!=' ' && string[p]!='\t'){//diabazw receiverWalletID
+		while(string[p]!=' ' && string[p]!='\t' && p<end){//diabazw value
 			tr->value=tr->value*10+string[p]-'0';
 			p++;
 		}
+
+		//////////////////
+		start=p;//pou exw menei , koitazw an uparxei hmerominia gia na diabasw
+		int flag_date=0,flag_time=0;
+		while(p<end){
+			if(string[p]=='-'){
+				flag_date++;
+			}
+			if(string[p]==':'){
+				flag_time++;
+			}
+			p++;
+		}
+		//p=start;
+
+		if(flag_date==2 && flag_time==1){//diabaseta katw
+			p=start;
+		}
+		else if(flag_date==0 && flag_time==0){//dinw thn twrinh wra
+			//https://stackoverflow.com/questions/1442116/how-to-get-the-date-and-time-values-in-a-c-program
+			time_t t=time(NULL);
+			struct tm tm=*localtime(&t);
+
+			printf("now: %d-%d-%d %d:%d:%d\n", tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec);
+
+			tr->date=malloc(sizeof(struct_date));
+			tr->date->year=tm.tm_year;
+			tr->date->month=tm.tm_mon;
+			tr->date->day=tm.tm_mday;
+			tr->time=malloc(sizeof(struct_time));
+			tr->time->hour=tm.tm_hour;
+			tr->time->minutes=tm.tm_min;
+
+			printf("RTY %s %s %d %d-%d-%d %d:%d\n",tr->senderWalletID,tr->receiverWalletID,tr->value,tr->date->day,tr->date->month,tr->date->year,tr->time->hour,tr->time->minutes);
+
+			return tr;
+		}
+		else{//exei dwsei la8os px mono time
+			return NULL;
+		}
+		
+		//////////////////
 
 		while(string[p]==' ' || string[p]=='\t' || string[p]=='\n'){//pernaw ta kena
 			p++;
@@ -927,7 +987,16 @@ transaction *breakTransaction(char *string,int begin,int end){
 		}
 
 		printf("break %s %s %d %d-%d-%d %d:%d\n",tr->senderWalletID,tr->receiverWalletID,tr->value,tr->date->day,tr->date->month,tr->date->year,tr->time->hour,tr->time->minutes);
-		return tr;
+		if(check_time(tr,ListOfTransactions)==1){
+			printf("invalid time of transaction\n");
+			free(tr->date);
+			free(tr->time);
+			free(tr);
+			return NULL;
+		}
+		else{
+			return tr;
+		}
 		/*if(executeTransaction(bitCoins,wallets,(*senderHashTable),(*receiverHashTable),arguments,tr)==-1){//mallon den xreiazetai if auth h sunarthsh na to bgalw !!!!!!!!!!!!!!!!!!!!!!!!!!!!
 			return -1;
 		}*/
@@ -1165,6 +1234,83 @@ int check_date(transaction *tr,struct_time time1,struct_time time2,struct_date d
 	return 0;*/
 }
 
+void freeBitCoinTree(bitCoinIdTreeNode *node){
+	if(node!=NULL){
+		freeBitCoinTree(node->left);
+		freeBitCoinTree(node->right);
+		free(node->walletID);
+		free(node);
+	}
+}
+
+void freeWalletUsersList(usersBitCoinsNode *node){
+	if(node!=NULL){
+		freeWalletUsersList(node->next);
+		free(node);
+	}
+}
+
+void freeHashTableBuckets(bucketNode *node){
+	if(node!=NULL){
+		freeHashTableBuckets(node->next);
+		for(int i=0;i<=node->last_entry;i++){
+			freeHashTableBucketsTrList(node->arrayOfUsers[i].transactionList);
+		}
+		free(node->arrayOfUsers);
+		free(node);
+	}
+}
+
+void freeHashTableBucketsTrList(transactionNode *node){
+	if(node!=NULL){
+		freeHashTableBucketsTrList(node->next);
+		free(node);
+	}
+}
+
+void freeListOfTransactions(transaction *node){
+	if(node!=NULL){
+		freeListOfTransactions(node->next);
+		free(node->transactionID);
+		free(node->senderWalletID);
+		free(node->receiverWalletID);
+		free(node->date);
+		free(node->time);
+		free(node);
+	}
+}
+
+
+int check_time(transaction *tr,listOfTransactions *ListOfTransactions){
+	if(ListOfTransactions->end==NULL){//einai adeio opote 
+		return 0;
+	}
+
+	//time_t t=time(NULL);
+	//struct tm tm=*localtime(&t);
+	//printf("check time now: %d-%d-%d %d:%d:%d\n", tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec);
+
+	int qaz_tr=tr->date->year*10000+tr->date->month*100+tr->date->day;
+	int qaz_list=ListOfTransactions->end->date->year*10000+ListOfTransactions->end->date->month*100+ListOfTransactions->end->date->day;
+
+	if(qaz_tr < qaz_list){
+		return 1;
+	}
+	else if(qaz_tr > qaz_list){
+		return 0;
+	}
+	else{//==
+		int qwe_tr=tr->time->hour*100+tr->time->minutes;
+		int qwe_list=ListOfTransactions->end->time->hour*100+ListOfTransactions->end->time->minutes;
+
+		if(qwe_tr < qwe_list){
+			return 1;
+		}
+		else{
+			return 0;
+		}
+	}
+}
 
 
 
