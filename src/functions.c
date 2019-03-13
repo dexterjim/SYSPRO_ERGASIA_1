@@ -154,7 +154,7 @@ int takeData_BitCoinBalanceFile(bitCoinIdArray **bitCoins,struct_wallets **walle
 			(*bitCoins)->array[bitcoincount].bitcoinid[p-start]=0;
 			printf("(*bitCoins)->array[bitcoincount].bitcoinid=%s...\n",(*bitCoins)->array[bitcoincount].bitcoinid);
 
-			(*bitCoins)->array[bitcoincount].numOfTransactions=0;//
+			//(*bitCoins)->array[bitcoincount].numOfTransactions=0;//
 
 			(*bitCoins)->array[bitcoincount].pointTree=malloc(sizeof(bitCoinIdTreeNode));
 			(*bitCoins)->array[bitcoincount].pointTree->walletID=malloc((strlen((*wallets)->users[walletcount].walletID)+1)*sizeof(char));
@@ -168,7 +168,7 @@ int takeData_BitCoinBalanceFile(bitCoinIdArray **bitCoins,struct_wallets **walle
 				return -1;
 			}
 			(*wallets)->users[walletcount].balance+=arguments->bitCoinValue;//pros8etw sto balance thn aksia tou bitcoin pou molis diabasa
-			insertList(&((*wallets)->users[walletcount].list),(*bitCoins)->array[bitcoincount].pointTree,bitcoincount);
+			insertList(&((*wallets)->users[walletcount].list),(*bitCoins)->array[bitcoincount].pointTree);
 			bitcoincount++;
 
 			while(string[p]==' ' || string[p]=='\t'){//pernaw ta kena
@@ -223,12 +223,12 @@ void printList(usersBitCoinsNode *list){
 	printf("\n");
 }
 
-void insertList(usersBitCoinsNode **list,bitCoinIdTreeNode *node,int offset){//MPORW NA TO BAZW STHN ARXH THS LISTA WSTE NA MHN XANW XRONO NA DIASXIZW THN LISTA
+void insertList(usersBitCoinsNode **list,bitCoinIdTreeNode *node){//MPORW NA TO BAZW STHN ARXH THS LISTA WSTE NA MHN XANW XRONO NA DIASXIZW THN LISTA
 	usersBitCoinsNode *temp;
 	if((*list)==NULL){
 		(*list)=malloc(sizeof(usersBitCoinsNode));
 		//(*list)->usersPartOfBitCoin=value;
-		(*list)->offsetOfBitCoin=offset;
+		//(*list)->offsetOfBitCoin=offset;
 		(*list)->treenode=node;
 		(*list)->next=NULL;
 	}
@@ -239,7 +239,7 @@ void insertList(usersBitCoinsNode **list,bitCoinIdTreeNode *node,int offset){//M
 		}
 		temp->next=malloc(sizeof(usersBitCoinsNode));
 		//temp->next->usersPartOfBitCoin=value;
-		temp->next->offsetOfBitCoin=offset;
+		//temp->next->offsetOfBitCoin=offset;
 		temp->next->treenode=node;
 		temp->next->next=NULL;
 	}
@@ -776,7 +776,7 @@ printf("NULL receiverHashTable->numOfUsersPerBucket=%d\n",receiverHashTable->num
 				sender_temp->arrayOfUsers[sender_point_on_bucket].users->list->treenode->left->left=NULL;
 				sender_temp->arrayOfUsers[sender_point_on_bucket].users->list->treenode->left->right=NULL;
 
-				insertList(&(receiver_temp->arrayOfUsers[receiver_point_on_bucket].users->list),sender_temp->arrayOfUsers[sender_point_on_bucket].users->list->treenode->left,sender_temp->arrayOfUsers[sender_point_on_bucket].users->list->offsetOfBitCoin);
+				insertList(&(receiver_temp->arrayOfUsers[receiver_point_on_bucket].users->list),sender_temp->arrayOfUsers[sender_point_on_bucket].users->list->treenode->left);
 
 				//right
 				sender_temp->arrayOfUsers[sender_point_on_bucket].users->list->treenode->right=malloc(sizeof(bitCoinIdTreeNode));
@@ -787,7 +787,7 @@ printf("NULL receiverHashTable->numOfUsersPerBucket=%d\n",receiverHashTable->num
 				sender_temp->arrayOfUsers[sender_point_on_bucket].users->list->treenode->right->left=NULL;
 				sender_temp->arrayOfUsers[sender_point_on_bucket].users->list->treenode->right->right=NULL;
 
-				insertList(&(sender_temp->arrayOfUsers[sender_point_on_bucket].users->list),sender_temp->arrayOfUsers[sender_point_on_bucket].users->list->treenode->right,sender_temp->arrayOfUsers[sender_point_on_bucket].users->list->offsetOfBitCoin);
+				insertList(&(sender_temp->arrayOfUsers[sender_point_on_bucket].users->list),sender_temp->arrayOfUsers[sender_point_on_bucket].users->list->treenode->right);
 			}
 			else{//ton xreiazomaste olo , enan kombo , (gia tipikous logous ton left)
 				//left
@@ -799,7 +799,7 @@ printf("NULL receiverHashTable->numOfUsersPerBucket=%d\n",receiverHashTable->num
 				sender_temp->arrayOfUsers[sender_point_on_bucket].users->list->treenode->left->left=NULL;
 				sender_temp->arrayOfUsers[sender_point_on_bucket].users->list->treenode->left->right=NULL;
 
-				insertList(&(receiver_temp->arrayOfUsers[receiver_point_on_bucket].users->list),sender_temp->arrayOfUsers[sender_point_on_bucket].users->list->treenode->left,sender_temp->arrayOfUsers[sender_point_on_bucket].users->list->offsetOfBitCoin);
+				insertList(&(receiver_temp->arrayOfUsers[receiver_point_on_bucket].users->list),sender_temp->arrayOfUsers[sender_point_on_bucket].users->list->treenode->left);
 
 			}
 
@@ -807,9 +807,9 @@ printf("NULL receiverHashTable->numOfUsersPerBucket=%d\n",receiverHashTable->num
 			printf("remaining=%d\n",remaining);
 
 			//numOfTransactions++
-			if(remaining<=0 || sender_temp->arrayOfUsers[sender_point_on_bucket].users->list->offsetOfBitCoin!=sender_temp->arrayOfUsers[sender_point_on_bucket].users->list->next->offsetOfBitCoin){
+			/*if(remaining<=0 || sender_temp->arrayOfUsers[sender_point_on_bucket].users->list->offsetOfBitCoin!=sender_temp->arrayOfUsers[sender_point_on_bucket].users->list->next->offsetOfBitCoin){
 			bitCoins->array[sender_temp->arrayOfUsers[sender_point_on_bucket].users->list->offsetOfBitCoin].numOfTransactions++;
-			}
+			}*/
 
 			//digrafw ton kombo apo thn lista kai bazw ta upoloipa, na ta bazw panw kai na bgazw thn "riza edw" !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 			deleteList_node(&(sender_temp->arrayOfUsers[sender_point_on_bucket].users->list));
@@ -1075,11 +1075,12 @@ void printTransactionHistory(bitCoinIdTreeNode *node){
 		if(node->tr->unused==0){
 			printf("%s %s %s %d %d-%d-%d %d:%d\n",node->tr->transactionID,node->tr->senderWalletID,node->tr->receiverWalletID,node->tr->value,node->tr->date->day,node->tr->date->month,node->tr->date->year,node->tr->time->hour,node->tr->time->minutes);
 			node->tr->unused=1;
+		}
 			printTransactionHistory(node->left);
 			if(node->right!=NULL){
 				printTransactionHistory(node->right);
 			}
-		}
+		//}
 	}
 }
 
@@ -1312,7 +1313,29 @@ int check_time(transaction *tr,listOfTransactions *ListOfTransactions){
 	}
 }
 
-
+int countTransactions(bitCoinIdTreeNode *node){
+	int count=0;
+	if(node->left!=NULL){//an einai NULL to left paidi tote autos o KOMBOS den exei labei meros se transaction
+		if(node->tr->unused==0){
+			node->tr->unused=1;
+			count=countTransactions(node->left);
+			if(node->right!=NULL){
+				count+=countTransactions(node->right);
+			}
+			return count+1;//+1 gia ton kombo pou eimai twra
+		}
+		else{
+			count=countTransactions(node->left);
+			if(node->right!=NULL){
+				count+=countTransactions(node->right);
+			}
+			return count;
+		}
+	}
+	else{
+		return 0;//einai null kai den exei kanei transactions
+	}
+}
 
 
 

@@ -214,14 +214,20 @@ for(int i=0;i<bitCoins->size;i++){
 					while(string[i]!=';'){
 						i++;
 					}
-					tr=breakTransaction(string,start,i,ListOfTransactions);
+					i++;
+					tr=breakTransaction(string,start,i-1,ListOfTransactions);
+					if(tr==NULL){
+						continue;
+					}
 /////////////////////////////////////////////////////////////////
 					if(strcmp(tr->senderWalletID,tr->receiverWalletID)==0){//elegxw an o sender kai o receiver einai o idios , EDW TERMATIZEI TO PROGRAMMA???
 						printf("\n\nSender=Receiver!!!\n\n\n");
+						free(tr);
 						continue;
 					}
 					if(findUser(wallets,tr->senderWalletID)==NULL || findUser(wallets,tr->receiverWalletID)==NULL){//EDW TERMATIZEI TO PROGRAMMA???
 						printf("\n\nSender or Receiver NOT FOUND!!!\n\n\n");
+						free(tr);
 						continue;
 					}
 					//MPOREI NA 8ELEI KAI ELEGXO MHN KAPOIA SYNALAGH EINAI META THN TWRINH WRA
@@ -249,7 +255,7 @@ for(int i=0;i<bitCoins->size;i++){
 						/////////////////////////
 					}
 //////////////////////////////////////////////////////////////////
-					i++;
+					//i++;//to phga panw
 				}
 				free(filename);
 				free(string);
@@ -763,9 +769,22 @@ for(int i=0;i<bitCoins->size;i++){
 			bitCoinID[i-start]=0;//AYTO NA TO BALW PANTOU !!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 			printf("bitCoinID=%s...\n",bitCoinID);
 
+/////////////////////////////////////////////
+			transaction *tr;
+			tr=ListOfTransactions->start;
+			while(tr!=NULL){//mhdenizw ta unused
+				tr->unused=0;
+				tr=tr->next;
+			}
+
+			//onebitCoinId *temp_bitcoin;
+			//temp_bitcoin=findBitCoin(bitCoins,bitCoinID);
+			//countTransactions(temp_bitcoin->pointTree);
+/////////////////////////////////////////////
+
 			onebitCoinId *bitcoin;
 			bitcoin=findBitCoin(bitCoins,bitCoinID);
-			printf("bitCoinID: %s \n\t-starting value = %d$\n\t-number of times used in a transaction = %d\n\t-unspent = %d$\n\n",bitCoinID,bitcoin->pointTree->value,bitcoin->numOfTransactions,findUnspent(bitcoin->pointTree));
+			printf("bitCoinID: %s \n\t-number of times used in a transaction = %d\n\t-unspent = %d$\n\n",bitCoinID,countTransactions(bitcoin->pointTree),findUnspent(bitcoin->pointTree));
 			free(bitCoinID);
 		}
 		else if(strcmp(command,"traceCoin")==0){

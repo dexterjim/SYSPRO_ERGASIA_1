@@ -29,7 +29,7 @@ struct bitCoinIdArray{
 
 struct onebitCoinId{
 	char *bitcoinid;
-	int numOfTransactions;
+	//int numOfTransactions;
 	bitCoinIdTreeNode *pointTree;
 };
 
@@ -57,7 +57,7 @@ struct oneWallet{
 
 struct usersBitCoinsNode{
 	//int usersPartOfBitCoin;//MALLON DEN XREIAZETAI
-	int offsetOfBitCoin;//to offset ston pinaka bitCoinIdArray , to exw gia to bitCoinStatus !!!!!!!!!!!!!!
+	//int offsetOfBitCoin;//to offset ston pinaka bitCoinIdArray , to exw gia to bitCoinStatus !!!!!!!!!!!!!!
 	bitCoinIdTreeNode *treenode;
 	usersBitCoinsNode *next;
 };
@@ -68,7 +68,7 @@ int checkForDuplicateWalletID(struct_wallets *wallets,int point);
 int checkForDuplicatebitCoinID(bitCoinIdArray *bitCoins,int point);
 
 void printList(usersBitCoinsNode *list);
-void insertList(usersBitCoinsNode **list,bitCoinIdTreeNode *node,int offset);//pros8esa to offset gia na peirazw to numberOfTransaction
+void insertList(usersBitCoinsNode **list,bitCoinIdTreeNode *node);//pros8esa to offset gia na peirazw to numberOfTransaction
 void deleteList_node(usersBitCoinsNode **list);
 
 //////////////////
@@ -162,3 +162,4 @@ void freeHashTableBucketsTrList(transactionNode *node);
 void freeListOfTransactions(transaction *node);
 
 int check_time(transaction *tr,listOfTransactions *ListOfTransactions);
+int countTransactions(bitCoinIdTreeNode *node);
