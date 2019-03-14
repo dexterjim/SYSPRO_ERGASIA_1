@@ -546,14 +546,16 @@ int takeData_TransactionsFile(bitCoinIdArray *bitCoins,struct_wallets *wallets,H
 			return -1;
 		}
 		if(strcmp(tr->senderWalletID,tr->receiverWalletID)==0){//elegxw an o sender kai o receiver einai o idios , EDW TERMATIZEI TO PROGRAMMA???
-			printf("\n\nSender=Receiver!!!\n\n\n");
+			//printf("\n\nSender=Receiver!!!\n\n\n");
 			//return -1;
+			printf("transaction '%s %s %s %d %d-%d-%d %d:%d' is canceled because Sender==Receiver\n",tr->transactionID,tr->senderWalletID,tr->receiverWalletID,tr->value,tr->date->day,tr->date->month,tr->date->year,tr->time->hour,tr->time->minutes);
 			free(tr);//
 			continue;//
 		}
 		if(findUser(wallets,tr->senderWalletID)==NULL || findUser(wallets,tr->receiverWalletID)==NULL){//EDW TERMATIZEI TO PROGRAMMA???
-			printf("\n\nSender or Receiver NOT FOUND!!!\n\n\n");
+			//printf("\n\nSender or Receiver NOT FOUND!!!\n\n\n");
 			//return -1;
+			printf("transaction '%s %s %s %d %d-%d-%d %d:%d' is canceled because Sender or Receiver NOT FOUND\n",tr->transactionID,tr->senderWalletID,tr->receiverWalletID,tr->value,tr->date->day,tr->date->month,tr->date->year,tr->time->hour,tr->time->minutes);
 			free(tr);//
 			continue;//
 		}
@@ -599,7 +601,8 @@ int takeData_TransactionsFile(bitCoinIdArray *bitCoins,struct_wallets *wallets,H
 int executeTransaction(bitCoinIdArray *bitCoins,struct_wallets *wallets,HashTable *senderHashTable,HashTable *receiverHashTable,struct_arguments *arguments,transaction *tr){
 
 		if(checkIfSenderHasEnoughBalance(wallets,tr)==-1){//mporei na mhn prepei na mpainei sthn lista me ta transactions
-			printf("NOT ENOUGHT BALANCE!!!\n");
+			printf("transaction '%s %s %d %d-%d-%d %d:%d' is canceled because Sender doesn't have enought balance\n",tr->senderWalletID,tr->receiverWalletID,tr->value,tr->date->day,tr->date->month,tr->date->year,tr->time->hour,tr->time->minutes);
+			//printf("NOT ENOUGHT BALANCE!!!\n");
 			return -1;
 		}
 
@@ -927,7 +930,7 @@ transaction *breakTransaction(char *string,int begin,int end,listOfTransactions 
 			time_t t=time(NULL);
 			struct tm tm=*localtime(&t);
 
-			printf("now: %d-%d-%d %d:%d:%d\n", tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec);
+			//printf("now: %d-%d-%d %d:%d:%d\n", tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec);
 
 			tr->date=malloc(sizeof(struct_date));
 			tr->date->year=tm.tm_year+1900;
@@ -937,7 +940,7 @@ transaction *breakTransaction(char *string,int begin,int end,listOfTransactions 
 			tr->time->hour=tm.tm_hour;
 			tr->time->minutes=tm.tm_min;
 
-			printf("RTY %s %s %d %d-%d-%d %d:%d\n",tr->senderWalletID,tr->receiverWalletID,tr->value,tr->date->day,tr->date->month,tr->date->year,tr->time->hour,tr->time->minutes);
+			//printf("RTY %s %s %d %d-%d-%d %d:%d\n",tr->senderWalletID,tr->receiverWalletID,tr->value,tr->date->day,tr->date->month,tr->date->year,tr->time->hour,tr->time->minutes);
 
 			return tr;
 		}
@@ -986,8 +989,9 @@ transaction *breakTransaction(char *string,int begin,int end,listOfTransactions 
 			p++;
 		}
 
-		printf("break %s %s %d %d-%d-%d %d:%d\n",tr->senderWalletID,tr->receiverWalletID,tr->value,tr->date->day,tr->date->month,tr->date->year,tr->time->hour,tr->time->minutes);
+		//printf("break %s %s %d %d-%d-%d %d:%d\n",tr->senderWalletID,tr->receiverWalletID,tr->value,tr->date->day,tr->date->month,tr->date->year,tr->time->hour,tr->time->minutes);
 		if(check_time(tr,ListOfTransactions)==1){
+			printf("transaction '%s %s %d %d-%d-%d %d:%d' is canceled because of ",tr->senderWalletID,tr->receiverWalletID,tr->value,tr->date->day,tr->date->month,tr->date->year,tr->time->hour,tr->time->minutes);
 			printf("invalid time of transaction\n");
 			free(tr->date);
 			free(tr->time);
@@ -1093,7 +1097,7 @@ int check_date(transaction *tr,struct_time time1,struct_time time2,struct_date d
 		int qaz_1=date1.year*10000+date1.month*100+date1.day;
 		int qaz_2=date2.year*10000+date2.month*100+date2.day;
 
-		printf("ZZZZ   %d %d %d\n",qaz_tr,qaz_1,qaz_2);
+		//printf("ZZZZ   %d %d %d\n",qaz_tr,qaz_1,qaz_2);
 
 		if(qaz_tr>qaz_1 && qaz_tr<qaz_2){
 			return 1;
