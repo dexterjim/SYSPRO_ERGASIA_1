@@ -59,7 +59,7 @@ int takeData_BitCoinBalanceFile(bitCoinIdArray **bitCoins,struct_wallets **walle
 	fclose(f);
 
 	string[fsize]=0;//teleiwnei se allagh grammhs ,mporei na 8elei allagh!!!!!!!!!!!!!!!!!!!!!!!!
-	printf("\n\nstring=%s...\n",string);
+	//printf("\n\nstring=%s...\n",string);
 
 	//ftiaxnw ta structs
 	(*bitCoins)=malloc(sizeof(bitCoinIdArray));
@@ -102,7 +102,7 @@ int takeData_BitCoinBalanceFile(bitCoinIdArray **bitCoins,struct_wallets **walle
 			}
 		}
 	}
-	printf("(*bitCoins)->size=%d (*wallets)->size=%d\n",(*bitCoins)->size,(*wallets)->size);
+	//printf("(*bitCoins)->size=%d (*wallets)->size=%d\n",(*bitCoins)->size,(*wallets)->size);
 
 	if((*wallets)->size==0){
 		//printf error
@@ -125,7 +125,7 @@ int takeData_BitCoinBalanceFile(bitCoinIdArray **bitCoins,struct_wallets **walle
 		(*wallets)->users[walletcount].walletID=malloc((p-start+1)*sizeof(char));
 		strncpy((*wallets)->users[walletcount].walletID,&(string[start]),p-start);//bazw to onoma
 		(*wallets)->users[walletcount].walletID[p-start]=0;
-		printf("(*wallets)->users[walletcount].walletID=%s...\n",(*wallets)->users[walletcount].walletID);
+		//printf("(*wallets)->users[walletcount].walletID=%s...\n",(*wallets)->users[walletcount].walletID);
 		if(checkForDuplicateWalletID((*wallets),walletcount)==-1){
 			printf("\n\nDuplicateWalletID!!!\n\n\n");
 			return -1;
@@ -152,7 +152,7 @@ int takeData_BitCoinBalanceFile(bitCoinIdArray **bitCoins,struct_wallets **walle
 			(*bitCoins)->array[bitcoincount].bitcoinid=malloc((p-start+1)*sizeof(char));
 			strncpy((*bitCoins)->array[bitcoincount].bitcoinid,&(string[start]),p-start);//bazw to onoma
 			(*bitCoins)->array[bitcoincount].bitcoinid[p-start]=0;
-			printf("(*bitCoins)->array[bitcoincount].bitcoinid=%s...\n",(*bitCoins)->array[bitcoincount].bitcoinid);
+			//printf("(*bitCoins)->array[bitcoincount].bitcoinid=%s...\n",(*bitCoins)->array[bitcoincount].bitcoinid);
 
 			//(*bitCoins)->array[bitcoincount].numOfTransactions=0;//
 
@@ -280,7 +280,7 @@ int takeData_TransactionsFile(bitCoinIdArray *bitCoins,struct_wallets *wallets,H
 	fclose(f);
 
 	string[fsize]=0;//teleiwnei se allagh grammhs ,mporei na 8elei allagh
-	printf("\n\nstring=%s...\n",string);
+	//printf("\n\nstring=%s...\n",string);
 	
 	//ftiaxnw ton ListOfTransactions
 	(*ListOfTransactions)=malloc(sizeof(listOfTransactions));
@@ -536,7 +536,7 @@ int takeData_TransactionsFile(bitCoinIdArray *bitCoins,struct_wallets *wallets,H
 			p++;
 		}
 
-		printf("%s %s %s %d %d-%d-%d %d:%d\n",tr->transactionID,tr->senderWalletID,tr->receiverWalletID,tr->value,tr->date->day,tr->date->month,tr->date->year,tr->time->hour,tr->time->minutes);
+		//printf("%s %s %s %d %d-%d-%d %d:%d\n",tr->transactionID,tr->senderWalletID,tr->receiverWalletID,tr->value,tr->date->day,tr->date->month,tr->date->year,tr->time->hour,tr->time->minutes);
 		//if(max_tr_id<strlen(tr->transactionID)){//to phga ligo pio katw
 		//	max_tr_id=strlen(tr->transactionID);
 		//}
@@ -568,7 +568,7 @@ int takeData_TransactionsFile(bitCoinIdArray *bitCoins,struct_wallets *wallets,H
 
 		if(executeTransaction(bitCoins,wallets,(*senderHashTable),(*receiverHashTable),arguments,tr)==0){//0 dld exei ektelestei me epitixia
 			/////////////////////////
-			printf("AAAAAAAAAAAAAAAAA\n");
+			//printf("AAAAAAAAAAAAAAAAA\n");
 			if((*ListOfTransactions)->start==NULL){
 				(*ListOfTransactions)->start=tr;
 				(*ListOfTransactions)->start->next=NULL;
@@ -579,7 +579,7 @@ int takeData_TransactionsFile(bitCoinIdArray *bitCoins,struct_wallets *wallets,H
 				(*ListOfTransactions)->end=(*ListOfTransactions)->end->next;
 				(*ListOfTransactions)->end->next=NULL;
 			}
-			printf("BBBBBBBBB\n");
+			//printf("BBBBBBBBB\n");
 			/////////////////////////
 		}
 		else{
@@ -610,7 +610,7 @@ int executeTransaction(bitCoinIdArray *bitCoins,struct_wallets *wallets,HashTabl
 
 		//ft
 		int sender_offset=hash(tr->senderWalletID,arguments->senderHashtableNumOfEntries);
-		int receiver_offset=hash(tr->senderWalletID,arguments->receiverHashtableNumOfEntries);
+		int receiver_offset=hash(tr->receiverWalletID,arguments->receiverHashtableNumOfEntries);//EDW TO EIXA senderWalletID anti gia receiverWalletID
 
 		//gia ton sender
 		bucketNode *sender_temp;
@@ -626,7 +626,7 @@ int executeTransaction(bitCoinIdArray *bitCoins,struct_wallets *wallets,HashTabl
 			senderHashTable->buckets[sender_offset]->arrayOfUsers[0].transactionList->tr=tr;
 			senderHashTable->buckets[sender_offset]->arrayOfUsers[0].transactionList->next=NULL;
 			senderHashTable->buckets[sender_offset]->next=NULL;
-printf("NULL senderHashTable->numOfUsersPerBucket=%d\n",senderHashTable->numOfUsersPerBucket);
+//printf("NULL senderHashTable->numOfUsersPerBucket=%d\n",senderHashTable->numOfUsersPerBucket);
 
 			sender_temp=senderHashTable->buckets[sender_offset];
 			sender_point_on_bucket=0;
@@ -693,7 +693,7 @@ printf("NULL senderHashTable->numOfUsersPerBucket=%d\n",senderHashTable->numOfUs
 			receiverHashTable->buckets[receiver_offset]->arrayOfUsers[0].transactionList->tr=tr;
 			receiverHashTable->buckets[receiver_offset]->arrayOfUsers[0].transactionList->next=NULL;
 			receiverHashTable->buckets[receiver_offset]->next=NULL;
-printf("NULL receiverHashTable->numOfUsersPerBucket=%d\n",receiverHashTable->numOfUsersPerBucket);
+//printf("NULL receiverHashTable->numOfUsersPerBucket=%d\n",receiverHashTable->numOfUsersPerBucket);
 
 			receiver_temp=receiverHashTable->buckets[receiver_offset];
 			receiver_point_on_bucket=0;
@@ -748,7 +748,7 @@ printf("NULL receiverHashTable->numOfUsersPerBucket=%d\n",receiverHashTable->num
 
 		//blepw poia bitCoin exei o sender wste na kanw thn sunalagh, exw tsekarei oti o sender exei ta xrhmata pou xreiazontai
 		//to last entry mou leei 
-		printf("AAA %d %d %d %d\n",sender_offset,sender_point_on_bucket,receiver_offset,receiver_point_on_bucket);
+		///////////////////////printf("AAA %d %d %d %d\n",sender_offset,sender_point_on_bucket,receiver_offset,receiver_point_on_bucket);
 		//ara exw ta 	sender_offset/receiver_offset ->se poio kouti apo to ht , MALLON AYTA DEN 8A TA XREIASTW
 		//		sender_point_on_bucket/receiver_point_on_bucket ->se poio kouti mesa sto bucket
 		//		sender_temp/receiver_temp ->deikth sto bucket pou anoikei o sender h o receiver antistoixa
@@ -804,7 +804,7 @@ printf("NULL receiverHashTable->numOfUsersPerBucket=%d\n",receiverHashTable->num
 			}
 
 			remaining-=sender_temp->arrayOfUsers[sender_point_on_bucket].users->list->treenode->value;
-			printf("remaining=%d\n",remaining);
+			//printf("remaining=%d\n",remaining);
 
 			//numOfTransactions++
 			/*if(remaining<=0 || sender_temp->arrayOfUsers[sender_point_on_bucket].users->list->offsetOfBitCoin!=sender_temp->arrayOfUsers[sender_point_on_bucket].users->list->next->offsetOfBitCoin){
@@ -930,8 +930,8 @@ transaction *breakTransaction(char *string,int begin,int end,listOfTransactions 
 			printf("now: %d-%d-%d %d:%d:%d\n", tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec);
 
 			tr->date=malloc(sizeof(struct_date));
-			tr->date->year=tm.tm_year;
-			tr->date->month=tm.tm_mon;
+			tr->date->year=tm.tm_year+1900;
+			tr->date->month=tm.tm_mon+1;
 			tr->date->day=tm.tm_mday;
 			tr->time=malloc(sizeof(struct_time));
 			tr->time->hour=tm.tm_hour;
@@ -1004,7 +1004,7 @@ transaction *breakTransaction(char *string,int begin,int end,listOfTransactions 
 
 int checkForDuplicateTransactionID(listOfTransactions *lot){//to point einai pou balame to teleutaio stoixeio
 	if(lot->start==lot->end){
-		printf("PRWTO STHN LISTA\n");
+		//printf("PRWTO STHN LISTA\n");
 		return 0;//pali, an einai mono 1 den to elegxw
 	}
 	transaction *temp;
@@ -1025,7 +1025,7 @@ int checkIfUserIsAlreadyInHashTable(HashTable *ht,int offset,char *str,bucketNod
 	while(temp!=NULL){
 		for(int i=0;i<=temp->last_entry;i++){
 			if(strcmp(temp->arrayOfUsers[i].users->walletID,str)==0){
-				printf("O %s htan apo prin sto hash\n",temp->arrayOfUsers[i].users->walletID);
+				//printf("O %s htan apo prin sto hash\n",temp->arrayOfUsers[i].users->walletID);
 				(*temp_to_bucket)=temp;
 				*point_on_bucket=i;
 				//sleep(5);

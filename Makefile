@@ -3,10 +3,10 @@ SOURCE	= src/main.c src/functions.c
 HEADER	= header-files/functions.h
 OUT	= bitcoin
 CC	= gcc
-FLAGS	= -g -c -Wall
+FLAGS	= -g3 -c -Wall
 
 $(OUT):	$(OBJS)
-	$(CC) -g $(OBJS) -o $@
+	$(CC) -g3 $(OBJS) -o $@
 
 main.o: src/main.c
 	$(CC) $(FLAGS) src/main.c
